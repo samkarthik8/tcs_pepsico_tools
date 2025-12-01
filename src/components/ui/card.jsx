@@ -1,7 +1,8 @@
-export function Card({ className = "", children }) {
+export function Card({ className = "", children, onClick }) {
     return (
         <div
-            className={`bg-gray-800 p-4 rounded-xl shadow-md ${className}`}
+            onClick={onClick}
+            className={`bg-gray-800 rounded-2xl shadow-lg ${className}`}
         >
             {children}
         </div>
