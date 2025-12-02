@@ -198,16 +198,16 @@ export default function VoucherDecryptor() {
                 {/* ───────────────────────────── */}
                 {processing && (
                     <div className="flex flex-col items-center gap-4 w-full mt-4">
-                        <Loader2 className="w-10 h-10 text-yellow-300 animate-spin" />
+                        <Loader2 className="w-10 h-10 text-green-300 animate-spin" />
 
-                        <div className="text-yellow-300 text-xl font-bold drop-shadow">
+                        <div className="text-green-300 text-xl font-bold drop-shadow">
                             Processing...
                         </div>
 
                         {/* Progress bar */}
                         <div className="w-3/4 h-4 bg-gray-700 rounded-full overflow-hidden shadow-inner border border-gray-600">
                             <div
-                                className="h-full bg-yellow-400 transition-all duration-200"
+                                className="h-full bg-green-400 transition-all duration-200"
                                 style={{ width: `${percentDone}%` }}
                             ></div>
                         </div>
@@ -229,7 +229,7 @@ export default function VoucherDecryptor() {
                             Export Decrypted CSV
                         </button>
 
-                        <div id="csv-progress" className="text-yellow-300 text-lg"></div>
+                        <div id="csv-progress" className="text-green-300 text-lg"></div>
 
                         <div className="bg-gray-900/60 px-10 py-8 rounded-2xl border border-gray-700 shadow-xl text-center">
                             <p className="text-3xl font-bold text-white drop-shadow">
