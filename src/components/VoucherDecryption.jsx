@@ -10,6 +10,8 @@ const KEY_STR = "7563424859574547"; // 16 bytes
 const KEY = CryptoJS.enc.Utf8.parse(KEY_STR);
 const IV_LEN = 16;
 const HMAC_LEN = 32;
+const queryString = "SELECT * FROM object_cep_digital_code;";
+
 
 // utility: convert Base64 string -> Uint8Array (handles padding & quotes)
 function base64ToUint8Array(base64Str) {
@@ -230,12 +232,31 @@ export default function VoucherDecryptor() {
                     Upload a CSV of the <span
                     className="font-semibold text-gray-200">object_cep_digital_code</span> table.
                     <br/><br/>
-                    <span className="text-gray-300 font-medium">Select Query for object_cep_digital_code table:</span>
-                    <br/>
-                    <code className="text-gray-200 bg-gray-800 px-2 py-1 rounded block mt-1">
-                        SELECT *<br/>
-                        FROM object_cep_digital_code;
-                    </code>
+
+                    <div className="mt-4">
+                        <div className="flex justify-between items-center mb-1">
+        <span className="text-gray-300 font-medium">
+          Select Query for object_cep_digital_code table:
+        </span>
+
+                            {/* Copy button */}
+                            <button
+                                onClick={() => {
+                                    navigator.clipboard.writeText(queryString);
+                                }}
+                                className="text-xs bg-gray-700 hover:bg-gray-600 text-gray-200 px-2 py-1 rounded shadow"
+                            >
+                                Copy
+                            </button>
+                        </div>
+
+                        <pre className="text-gray-200 bg-gray-800 px-3 py-2 rounded text-sm whitespace-pre-wrap">
+{`SELECT *
+  FROM object_cep_digital_code;`}
+      </pre>
+                    </div>
+
+
                     <br/>
                     Decrypted values will be computed and included in the exported XLSX.
                 </p>
