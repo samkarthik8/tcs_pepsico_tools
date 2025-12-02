@@ -8,7 +8,7 @@ import IncidentTable from "./IncidentTable.jsx";
 import StatsSummary from "./StatsSummary.jsx";
 import IncidentMap from "./IncidentMap";
 
-export default function Dashboard({ data, setData, onFileUpload }) {
+export default function IncidentReportDashboard({ data, setData, onFileUpload }) {
     const [filters, setFilters] = useState({
         state: "",
         category: "",
