@@ -90,8 +90,8 @@ export default function VoucherDecryptor() {
                 // // Trigger XLSX conversion after CSV is ready
                 // convertCsvBlobToXlsx(blob);
 
-                if (progressEl) progressEl.remove();
-                alert(`✅ CSV export complete! Total rows: ${total.toLocaleString()}`);
+                // if (progressEl) progressEl.remove();
+                // alert(`✅ CSV export complete! Total rows: ${total.toLocaleString()}`);
             }
         };
 
