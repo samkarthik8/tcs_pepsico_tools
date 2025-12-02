@@ -16,6 +16,8 @@
     "crypto-js": "^4.2.0",
     "csv2xlsx": "^1.1.0",
     "dayjs": "^1.11.18",
+    "dexie": "^4.2.1",
+    "exceljs": "^4.4.0",
     "framer-motion": "^12.23.24",
     "html2canvas": "^1.4.1",
     "lucide-react": "^0.545.0",
