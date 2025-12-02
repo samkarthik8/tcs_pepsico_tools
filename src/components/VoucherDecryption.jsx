@@ -170,7 +170,7 @@ export default function VoucherDecryptor() {
 
         const ws = XLSX.utils.aoa_to_sheet(aoa);
         const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Vouchers");
+        XLSX.utils.book_append_sheet(wb, ws, "Data");
 
         // Format file name: Voucher Data DD-MMM-YYYY.xlsx (e.g. 02-Dec-2025)
         const date = new Date();
@@ -208,7 +208,7 @@ export default function VoucherDecryptor() {
                         className="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg text-white font-semibold shadow-lg flex items-center gap-2"
                     >
                         <Download size={18}/>
-                        {processing ? "Processing..." : "Export XLSX"}
+                        {processing ? "Processing..." : "Export Decrypted XLSX"}
                     </button>
                 )}
             </div>
@@ -216,7 +216,7 @@ export default function VoucherDecryptor() {
             {rows && (
                 <div className="mt-8 w-full max-w-4xl bg-gray-900 p-4 rounded-lg border border-gray-700">
                     <p className="text-gray-300 mb-2">
-                        Loaded <strong>{rows.length}</strong> rows. First row columns:
+                        Loaded <strong>{rows.length}</strong> rows. Columns in uploaded CSV file:
                     </p>
                     <div className="flex flex-wrap gap-2">
                         {Object.keys(rows[0]).map((k) => (
