@@ -41,25 +41,24 @@ export default function VoucherDecryptor() {
         });
     };
 
-    const sanitizeCell = (value) => {
-        if (value == null) return "";
-        return String(value)
-            .replace(/\p{Co}/gu, "")
-            .replace(/\r?\n|\r/g, " ")
-            .replace(/"/g, '""');
-    };
-
-    // ───── CSV streaming export (for huge files) ─────
-    const exportCsvThenXlsx = () => {
+    // ───── Optimized CSV export for huge files ─────
+    const exportCsvOptimized = () => {
         if (!rows.length) return alert("No data to export.");
 
         const headers = Object.keys(rows[0]);
         const total = rows.length;
         const filenameCsv = `Decrypted_Vouchers_${new Date().toISOString().slice(0, 10)}.csv`;
 
-        let csvContent = "\uFEFF" + headers.join(",") + "\r\n";
+        let csvContent = "\uFEFF" + headers.join(",") + "\n"; // BOM for Excel
         const chunkSize = 15000;
         let processed = 0;
+
+        const quoteIfNeeded = (val) => {
+            if (val == null) return "";
+            const str = String(val).replace(/\r?\n|\r/g, " "); // replace line breaks
+            if (/[,"\n]/.test(str)) return `"${str.replace(/"/g, '""')}"`;
+            return str;
+        };
 
         const processChunk = () => {
             const start = processed;
@@ -67,10 +66,10 @@ export default function VoucherDecryptor() {
             const chunk = rows.slice(start, end);
 
             const lines = chunk.map((row) =>
-                headers.map((h) => `"${sanitizeCell(row[h])}"`).join(",")
+                headers.map((h) => quoteIfNeeded(row[h])).join(",")
             );
 
-            csvContent += lines.join("\r\n") + "\r\n";
+            csvContent += lines.join("\n") + "\n";
             processed = end;
 
             const percent = Math.round((processed / total) * 100);
@@ -80,7 +79,6 @@ export default function VoucherDecryptor() {
             if (processed < total) {
                 setTimeout(processChunk, 0);
             } else {
-                // CSV download
                 const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement("a");
@@ -88,7 +86,7 @@ export default function VoucherDecryptor() {
                 a.download = filenameCsv;
                 a.click();
 
-                // Trigger XLSX conversion after CSV is complete
+                // Trigger XLSX conversion after CSV is ready
                 convertCsvBlobToXlsx(blob);
 
                 if (progressEl) progressEl.remove();
@@ -99,13 +97,12 @@ export default function VoucherDecryptor() {
         processChunk();
     };
 
-    // ───── XLSX conversion after large CSV is created ─────
+    // ───── XLSX conversion after CSV export ─────
     const convertCsvBlobToXlsx = async (blob) => {
         try {
-            const text = await blob.text(); // read the CSV content
+            const text = await blob.text();
             const workbook = XLSX.utils.book_new();
 
-            // Split large CSV into chunks of 50k rows to avoid memory issues
             const lines = text.split(/\r?\n/).filter(Boolean);
             if (lines.length < 2) return;
 
@@ -156,7 +153,7 @@ export default function VoucherDecryptor() {
                     <div className="export-buttons flex flex-col items-center gap-6 w-full max-w-4xl">
                         <div className="w-full text-center">
                             <button
-                                onClick={exportCsvThenXlsx}
+                                onClick={exportCsvOptimized}
                                 className="bg-orange-600 hover:bg-orange-700 px-10 py-5 rounded-xl text-white font-bold text-xl shadow-2xl flex items-center gap-4 mx-auto transition transform hover:scale-105"
                             >
                                 <Download size={32} />
