@@ -86,8 +86,8 @@ export default function VoucherDecryptor() {
                 a.download = filenameCsv;
                 a.click();
 
-                // Trigger XLSX conversion after CSV is ready
-                convertCsvBlobToXlsx(blob);
+                // // Trigger XLSX conversion after CSV is ready
+                // convertCsvBlobToXlsx(blob);
 
                 if (progressEl) progressEl.remove();
                 alert(`✅ CSV export complete! Total rows: ${total.toLocaleString()}`);
@@ -97,34 +97,7 @@ export default function VoucherDecryptor() {
         processChunk();
     };
 
-    // ───── XLSX conversion after CSV export ─────
-    const convertCsvBlobToXlsx = async (blob) => {
-        try {
-            const text = await blob.text();
-            const workbook = XLSX.utils.book_new();
 
-            const lines = text.split(/\r?\n/).filter(Boolean);
-            if (lines.length < 2) return;
-
-            const headers = lines[0].split(",");
-            const chunkSize = 50000;
-
-            for (let i = 1; i < lines.length; i += chunkSize) {
-                const chunk = lines.slice(i, i + chunkSize).map(line =>
-                    line.split(",").map(cell => cell.replace(/^"|"$/g, ""))
-                );
-                const ws = XLSX.utils.aoa_to_sheet([headers, ...chunk]);
-                XLSX.utils.book_append_sheet(workbook, ws, `Sheet ${Math.floor(i / chunkSize) + 1}`);
-            }
-
-            const filenameXlsx = `Decrypted_Vouchers_${new Date().toISOString().slice(0, 10)}.xlsx`;
-            XLSX.writeFile(workbook, filenameXlsx);
-            alert("✅ XLSX conversion complete!");
-        } catch (err) {
-            console.error("XLSX conversion failed:", err);
-            alert("❌ Failed to convert CSV to XLSX.");
-        }
-    };
 
     const rowCount = rows.length;
 
@@ -157,7 +130,7 @@ export default function VoucherDecryptor() {
                                 className="bg-orange-600 hover:bg-orange-700 px-10 py-5 rounded-xl text-white font-bold text-xl shadow-2xl flex items-center gap-4 mx-auto transition transform hover:scale-105"
                             >
                                 <Download size={32} />
-                                EXPORT CSV → XLSX
+                                Export Decrypted CSV
                             </button>
                             <div id="csv-progress" className="mt-3 text-yellow-300 text-lg"></div>
                         </div>
