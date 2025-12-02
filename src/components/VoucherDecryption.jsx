@@ -1,7 +1,7 @@
 // VoucherDecryption.jsx
 import React, { useState } from "react";
 import Papa from "papaparse";
-import { AlertCircle, Download, Upload } from "lucide-react";
+import { AlertCircle, Download, Upload, Loader2 } from "lucide-react";
 import pepsicoLogo from "../assets/pepsico_logo.png";
 import { decryptVoucher } from "../services/DecryptService";
 import * as XLSX from "xlsx";
@@ -10,19 +10,42 @@ export default function VoucherDecryptor() {
     const [rows, setRows] = useState([]);
     const [processing, setProcessing] = useState(false);
 
-    // NEW: live parsed row counter
+    // NEW: live parsed row counter + total rows counter
     const [parsedCount, setParsedCount] = useState(0);
+    const [totalCount, setTotalCount] = useState(0);
 
     const queryString = "SELECT * FROM object_cep_digital_code;";
 
-    const handleUpload = (ev) => {
+    // ----------------------------------------------------
+    // COUNT ROWS FIRST (lightweight pass)
+    // ----------------------------------------------------
+    const countRows = (file) =>
+        new Promise((resolve) => {
+            let count = 0;
+            Papa.parse(file, {
+                worker: true,
+                skipEmptyLines: true,
+                step: () => {
+                    count++;
+                },
+                complete: () => resolve(count),
+            });
+        });
+
+    const handleUpload = async (ev) => {
         const file = ev.target.files?.[0];
         if (!file) return;
 
         setProcessing(true);
-        setParsedCount(0); // reset counter
+        setParsedCount(0);
+
+        // Pass 1: count rows for progress bar
+        const rowEstimate = await countRows(file);
+        setTotalCount(rowEstimate);
+
         const parsedRows = [];
 
+        // Pass 2: actual decrypting pass
         Papa.parse(file, {
             header: true,
             skipEmptyLines: true,
@@ -33,28 +56,33 @@ export default function VoucherDecryptor() {
                     Object.keys(r).find((k) => k.toLowerCase() === "code") || "Code";
                 const encrypted = r[codeKey] || "";
                 const decrypted = encrypted ? decryptVoucher(encrypted) : "[No Code]";
+
                 parsedRows.push({ Decrypted: decrypted, Encrypted: encrypted, ...r });
 
-                // Throttle updates → improves performance for huge files
+                // update progress
                 if (parsedRows.length % 100 === 0) {
                     setParsedCount(parsedRows.length);
                 }
             },
             complete: () => {
                 setRows(parsedRows);
-                setParsedCount(parsedRows.length); // final update
+                setParsedCount(parsedRows.length);
                 setProcessing(false);
             },
             error: (err) => {
                 console.error("CSV parse error:", err);
-                alert("Failed to parse CSV file.");
+                alert("Failed to parse CSV.");
                 setProcessing(false);
                 setParsedCount(0);
+                setTotalCount(0);
             },
         });
     };
 
-    // ───── Optimized CSV export for huge files ─────
+    // ────────────────────────────────────────────────
+    //         Optimized CSV Export (unchanged)
+    // ────────────────────────────────────────────────
+
     const exportCsvOptimized = () => {
         if (!rows.length) return alert("No data to export.");
 
@@ -64,7 +92,7 @@ export default function VoucherDecryptor() {
             .toISOString()
             .slice(0, 10)}.csv`;
 
-        let csvContent = "\uFEFF" + headers.join(",") + "\n"; // BOM for Excel
+        let csvContent = "\uFEFF" + headers.join(",") + "\n"; // BOM
         const chunkSize = 15000;
         let processed = 0;
 
@@ -90,7 +118,7 @@ export default function VoucherDecryptor() {
             const percent = Math.round((processed / total) * 100);
             const progressEl = document.getElementById("csv-progress");
             if (progressEl) {
-                progressEl.textContent = `Exporting CSV… ${processed.toLocaleString()} / ${total.toLocaleString()} (${percent}%)`;
+                progressEl.textContent = `Exporting CSV… ${percent}%`;
             }
 
             if (processed < total) {
@@ -109,6 +137,9 @@ export default function VoucherDecryptor() {
 
         processChunk();
     };
+
+    const percentDone =
+        totalCount > 0 ? Math.round((parsedCount / totalCount) * 100) : 0;
 
     const rowCount = rows.length;
 
@@ -136,6 +167,7 @@ export default function VoucherDecryptor() {
                     />
                 </label>
 
+                {/* Query section (unchanged) */}
                 <div className="w-full bg-black/20 p-6 rounded-2xl border border-white/10 shadow-inner">
                     <div className="flex justify-between items-center mb-3">
                         <span className="text-gray-300 font-semibold">
@@ -161,14 +193,33 @@ export default function VoucherDecryptor() {
                     </p>
                 </div>
 
-                {/* Processing Indicator */}
+                {/* ───────────────────────────── */}
+                {/*      NEW LOADING UI           */}
+                {/* ───────────────────────────── */}
                 {processing && (
-                    <div className="text-yellow-400 font-bold text-2xl animate-pulse drop-shadow-md">
-                        Processing {parsedCount.toLocaleString()} rows...
+                    <div className="flex flex-col items-center gap-4 w-full mt-4">
+                        <Loader2 className="w-10 h-10 text-yellow-300 animate-spin" />
+
+                        <div className="text-yellow-300 text-xl font-bold drop-shadow">
+                            Processing...
+                        </div>
+
+                        {/* Progress bar */}
+                        <div className="w-3/4 h-4 bg-gray-700 rounded-full overflow-hidden shadow-inner border border-gray-600">
+                            <div
+                                className="h-full bg-yellow-400 transition-all duration-200"
+                                style={{ width: `${percentDone}%` }}
+                            ></div>
+                        </div>
+
+                        <div className="text-gray-300 text-sm">
+                            {percentDone}% completed
+                        </div>
                     </div>
                 )}
 
-                {rowCount > 0 && (
+                {/* Export + Loaded Summary */}
+                {rowCount > 0 && !processing && (
                     <div className="flex flex-col items-center gap-8 w-full">
                         <button
                             onClick={exportCsvOptimized}
