@@ -9,6 +9,7 @@ import * as XLSX from "xlsx";
 export default function VoucherDecryptor() {
     const [rows, setRows] = useState([]);
     const [processing, setProcessing] = useState(false);
+    const queryString = "SELECT * FROM object_cep_digital_code;";
 
     const handleUpload = (ev) => {
         const file = ev.target.files?.[0];
@@ -115,6 +116,32 @@ export default function VoucherDecryptor() {
                     <Upload size={28} /> Upload CSV File
                     <input type="file" accept=".csv" onChange={handleUpload} className="hidden" />
                 </label>
+
+                <div className="mt-4">
+                    <div className="flex justify-between items-center mb-1">
+        <span className="text-gray-300 font-medium">
+          Select Query for object_cep_digital_code table:
+        </span>
+
+                        {/* Copy button */}
+                        <button
+                            onClick={() => {
+                                navigator.clipboard.writeText(queryString);
+                            }}
+                            className="text-xs bg-gray-700 hover:bg-gray-600 text-gray-200 px-2 py-1 rounded shadow"
+                        >
+                            Copy
+                        </button>
+                    </div>
+
+                    <pre className="text-gray-200 bg-gray-800 px-3 py-2 rounded text-sm whitespace-pre-wrap">
+{`SELECT *
+  FROM object_cep_digital_code;`}
+      </pre>
+
+                    <p>                    Decrypted values will be computed and included in the exported XLSX.
+                    </p>
+                </div>
 
                 {processing && (
                     <div className="text-yellow-400 font-bold text-xl animate-pulse">
