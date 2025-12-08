@@ -8,6 +8,7 @@ import ToolsDashboard from "./components/ToolsDashboard.jsx";
 import IncidentReportDashboard from "./components/IncidentReportDashboard.jsx";
 import ExcelFolderSearch from "./components/ExcelFolderSearch.jsx";
 import VoucherDecryption from "./components/VoucherDecryption.jsx";
+import THReconciliation from "./components/THReconciliation.jsx";
 
 // Utilities
 import {processData} from "./utils.js";
@@ -56,6 +57,11 @@ export default function App() {
                 <Route
                     path="/voucher-decryption"
                     element={<VoucherDecryption/>}
+                />
+                {/* TH Reconciliation — usually does NOT need data props */}
+                <Route
+                    path="/th-reconciliation"
+                    element={<THReconciliation/>}
                 />
             </Routes>
         </BrowserRouter>

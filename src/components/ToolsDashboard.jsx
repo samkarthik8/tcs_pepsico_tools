@@ -1,7 +1,7 @@
 import React from "react";
 import {Card} from "./ui/card";
 import {useNavigate} from "react-router-dom";
-import {FiFileText, FiKey, FiSearch} from "react-icons/fi"; // icons for each tool
+import { FiFileText, FiKey, FiSearch, FiCheckSquare } from "react-icons/fi";
 
 export default function ToolsDashboard() {
     const navigate = useNavigate();
@@ -25,6 +25,12 @@ export default function ToolsDashboard() {
             path: "/voucher-decryption",
             icon: <FiKey/>
         },
+        {
+            title: "TH Reconciliation",
+            description: "Process and reconcile TH transaction records",
+            path: "/th-reconciliation",
+            icon: <FiCheckSquare />
+        }
     ];
 
     return (

@@ -1,4 +1,4 @@
-// VoucherDecryption.jsx
+// THReconciliation.jsx
 import React, {useState} from "react";
 import Papa from "papaparse";
 import {Download, Loader2, Upload} from "lucide-react";
@@ -8,7 +8,7 @@ import {decryptVoucher} from "../services/DecryptService";
 // Extracted Query — Single Source of Truth
 const QUERY_STRING = "SELECT * FROM object_cep_digital_code;";
 
-export default function VoucherDecryptor() {
+export default function THReconciliation() {
     const [rows, setRows] = useState([]);
     const [processing, setProcessing] = useState(false);
     const [parsedCount, setParsedCount] = useState(0);
@@ -135,7 +135,7 @@ export default function VoucherDecryptor() {
             <div className="flex items-center justify-center gap-8 mb-14">
                 <img src={pepsicoLogo} alt="PepsiCo Logo" className="h-28 drop-shadow-2xl"/>
                 <h1 className="text-5xl font-extrabold text-white tracking-wider drop-shadow-2xl">
-                    Voucher Decryption Tool
+                    TH Reconciliation
                 </h1>
             </div>
 
