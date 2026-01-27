@@ -39,13 +39,13 @@ export default function ExcelFolderSearch() {
         return parts.join('');
     };
 
-    // Handle folder selection and parsing all XLSX files
+    // Handle folder selection and parsing all XLSX, XLS and DOCX files
     const handleFolderSelect = async (e) => {
         const files = Array.from(e.target.files).filter((f) =>
-            f.name.match(/\.(xlsx|docx)$/i)
+            f.name.match(/\.(xlsx|xls|docx)$/i)
         );
         if (!files.length) {
-            alert("No supported files (.xlsx or .docx) found in the selected folder.");
+            alert("No supported files (.xlsx or .xls or .docx) found in the selected folder.");
             return;
         }
         setLoading(true);
@@ -212,7 +212,7 @@ export default function ExcelFolderSearch() {
                             type="file"
                             webkitdirectory="true"
                             multiple
-                            accept=".xlsx,.docx"
+                            accept=".xlsx,.xls,.docx"
                             onChange={handleFolderSelect}
                             className="hidden"
                         />
