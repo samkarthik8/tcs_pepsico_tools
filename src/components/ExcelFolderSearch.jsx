@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import * as XLSX from "xlsx";
 import * as mammoth from "mammoth";
-import {AnimatePresence} from "framer-motion";
+import {AnimatePresence, motion} from "framer-motion";
 import {ChevronLeft, ChevronRight} from "lucide-react";
 import pepsicoLogo from "../assets/pepsico_logo.png";
 
