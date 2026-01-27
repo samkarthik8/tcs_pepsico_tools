@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import * as XLSX from "xlsx";
 import * as mammoth from "mammoth";
-import {AnimatePresence, motion} from "framer-motion";
+import {AnimatePresence} from "framer-motion";
 import {ChevronLeft, ChevronRight} from "lucide-react";
 import pepsicoLogo from "../assets/pepsico_logo.png";
 
@@ -61,7 +61,7 @@ export default function ExcelFolderSearch() {
                 )
                 : "";
             try {
-                if (ext === "xlsx") {
+                if (ext === "xlsx" || ext === "xls") {
                     const data = await file.arrayBuffer();
                     const workbook = XLSX.read(data, {type: "array"});
                     // Process all sheets in workbook
@@ -223,7 +223,7 @@ export default function ExcelFolderSearch() {
             {loading && (
                 <div className="flex flex-col items-center justify-center h-64 w-full max-w-lg mx-auto">
                     <p className="text-lg text-blue-300 font-semibold mb-4">
-                        Scanning Excel files... ({progress}%)
+                        Scanning files... ({progress}%)
                     </p>
                     <div className="w-full bg-gray-800 rounded-full h-4">
                         <div
@@ -377,7 +377,7 @@ export default function ExcelFolderSearch() {
             {/* No files selected */}
             {!loading && filesData.length === 0 && (
                 <p className="text-center text-gray-400 mt-6">
-                    Please select a folder containing .xlsx or .docx files to begin.
+                    Please select a folder containing .xlsx, .xls or .docx files to begin.
                 </p>
             )}
         </div>
