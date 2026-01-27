@@ -377,7 +377,7 @@ export default function ExcelFolderSearch() {
             {/* No files selected */}
             {!loading && filesData.length === 0 && (
                 <p className="text-center text-gray-400 mt-6">
-                    Please select a folder containing .xlsx files to begin.
+                    Please select a folder containing .xlsx or .docx files to begin.
                 </p>
             )}
         </div>
