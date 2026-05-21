@@ -1,11 +1,9 @@
 import React, {useMemo, useState} from "react";
 import FileUpload from "./FileUpload.jsx";
-
-// Existing reusable chart/table components
-import IncidentTable from "./IncidentTable.jsx";
 import CategoryChart from "./CategoryChart.jsx";
 import MarketChart from "./MarketChart.jsx";
-import AgingChart from "./AgingChart.jsx";
+import IncidentTable from "./IncidentTable.jsx";
+
 
 const REQUIRED_COLUMNS = [
     "Number",
@@ -15,7 +13,6 @@ const REQUIRED_COLUMNS = [
     "Impacted Companies List",
 ];
 
-// Fallback buckets
 const INVALID_ROOT_CAUSES = [
     "Root Cause Unknown",
     "No Documentation",
@@ -63,40 +60,50 @@ export default function RCAQualityDashboard({
 
     const [missingColumns, setMissingColumns] = useState([]);
 
-    // -----------------------------
-    // Normalize column names
-    // -----------------------------
+    // -----------------------------------------
+    // Utility: Find Column Dynamically
+    // -----------------------------------------
     const findColumn = (row, possibleNames) => {
         const keys = Object.keys(row || {});
 
         return keys.find((key) =>
             possibleNames.some(
                 (name) =>
-                    key?.toLowerCase()?.trim() ===
-                    name?.toLowerCase()?.trim()
+                    key?.trim()?.toLowerCase() ===
+                    name?.trim()?.toLowerCase()
             )
         );
     };
 
-    // -----------------------------
+    // -----------------------------------------
     // RCA Score Calculation
-    // -----------------------------
+    // -----------------------------------------
     const calculateRCAScore = (row) => {
-        const closeNotesKey = findColumn(row, ["Resolution notes"]);
-        const resolutionSubcodeKey = findColumn(row, ["Resolution subcode"]);
+        const closeNotesKey = findColumn(row, [
+            "Resolution notes",
+        ]);
+
+        const resolutionSubcodeKey = findColumn(row, [
+            "Resolution subcode",
+        ]);
+
         const serviceKey = findColumn(row, ["Service"]);
+
         const impactedCompaniesKey = findColumn(row, [
             "Impacted Companies List",
         ]);
 
-        const closeNotes =
-            String(row?.[closeNotesKey] || "").trim();
+        const closeNotes = String(
+            row?.[closeNotesKey] || ""
+        ).trim();
 
-        const resolutionType =
-            String(row?.[resolutionSubcodeKey] || "").trim();
+        const resolutionType = String(
+            row?.[resolutionSubcodeKey] || ""
+        ).trim();
 
-        const rootCauseCategory =
-            String(row?.[resolutionSubcodeKey] || "").trim();
+        const rootCauseCategory = String(
+            row?.[resolutionSubcodeKey] || ""
+        ).trim();
 
         const systemImpacted = `${row?.[serviceKey] || ""} - ${
             row?.[impactedCompaniesKey] || ""
@@ -135,7 +142,9 @@ export default function RCAQualityDashboard({
         // 5
         if (
             resolutionType &&
-            !INVALID_RESOLUTION_TYPES.includes(resolutionType)
+            !INVALID_RESOLUTION_TYPES.includes(
+                resolutionType
+            )
         ) {
             score += 15;
         }
@@ -151,11 +160,13 @@ export default function RCAQualityDashboard({
         }
 
         // 7
-        const lowerCloseNotes = closeNotes.toLowerCase();
+        const lowerCloseNotes =
+            closeNotes.toLowerCase();
 
-        const containsCausalKeyword = CAUSAL_KEYWORDS.some(
-            (keyword) => lowerCloseNotes.includes(keyword)
-        );
+        const containsCausalKeyword =
+            CAUSAL_KEYWORDS.some((keyword) =>
+                lowerCloseNotes.includes(keyword)
+            );
 
         if (containsCausalKeyword) {
             score += 10;
@@ -164,9 +175,9 @@ export default function RCAQualityDashboard({
         return Math.min(score, 100);
     };
 
-    // -----------------------------
-    // Bucket Classification
-    // -----------------------------
+    // -----------------------------------------
+    // RCA Bucket
+    // -----------------------------------------
     const getBucket = (score) => {
         if (score >= 80) return "Excellent";
         if (score >= 50) return "Good";
@@ -174,9 +185,9 @@ export default function RCAQualityDashboard({
         return "Critical";
     };
 
-    // -----------------------------
-    // Handle Upload
-    // -----------------------------
+    // -----------------------------------------
+    // File Upload
+    // -----------------------------------------
     const handleFileUpload = (parsedData) => {
         if (!parsedData?.length) {
             setData([]);
@@ -184,6 +195,7 @@ export default function RCAQualityDashboard({
         }
 
         const firstRow = parsedData[0];
+
         const columns = Object.keys(firstRow);
 
         const missing = REQUIRED_COLUMNS.filter(
@@ -191,7 +203,9 @@ export default function RCAQualityDashboard({
                 !columns.some(
                     (col) =>
                         col.trim().toLowerCase() ===
-                        requiredColumn.trim().toLowerCase()
+                        requiredColumn
+                            .trim()
+                            .toLowerCase()
                 )
         );
 
@@ -200,19 +214,24 @@ export default function RCAQualityDashboard({
         const enrichedData = parsedData.map((row) => {
             const score = calculateRCAScore(row);
 
-            const closeNotesKey = findColumn(row, [
-                "Resolution notes",
+            const resolutionNotesKey = findColumn(
+                row,
+                ["Resolution notes"]
+            );
+
+            const resolutionSubcodeKey =
+                findColumn(row, [
+                    "Resolution subcode",
+                ]);
+
+            const serviceKey = findColumn(row, [
+                "Service",
             ]);
 
-            const resolutionSubcodeKey = findColumn(row, [
-                "Resolution subcode",
-            ]);
-
-            const serviceKey = findColumn(row, ["Service"]);
-
-            const impactedCompaniesKey = findColumn(row, [
-                "Impacted Companies List",
-            ]);
+            const impactedCompaniesKey =
+                findColumn(row, [
+                    "Impacted Companies List",
+                ]);
 
             return {
                 ...row,
@@ -221,7 +240,7 @@ export default function RCAQualityDashboard({
                 rcaBucket: getBucket(score),
 
                 close_notes:
-                    row?.[closeNotesKey] || "",
+                    row?.[resolutionNotesKey] || "",
 
                 resolution_type:
                     row?.[resolutionSubcodeKey] || "",
@@ -242,9 +261,9 @@ export default function RCAQualityDashboard({
         }
     };
 
-    // -----------------------------
-    // Filtered Data
-    // -----------------------------
+    // -----------------------------------------
+    // Filters
+    // -----------------------------------------
     const filteredData = useMemo(() => {
         return data.filter((item) => {
             const bucketMatch =
@@ -253,7 +272,8 @@ export default function RCAQualityDashboard({
 
             const serviceMatch =
                 filters.service === "All" ||
-                item.system_impacted === filters.service;
+                item.system_impacted ===
+                filters.service;
 
             const scoreMatch =
                 filters.scoreRange === "All" ||
@@ -272,7 +292,9 @@ export default function RCAQualityDashboard({
                 !filters.search ||
                 JSON.stringify(item)
                     .toLowerCase()
-                    .includes(filters.search.toLowerCase());
+                    .includes(
+                        filters.search.toLowerCase()
+                    );
 
             return (
                 bucketMatch &&
@@ -285,9 +307,9 @@ export default function RCAQualityDashboard({
 
     const isFileUploaded = !!data.length;
 
-    // -----------------------------
+    // -----------------------------------------
     // Stats
-    // -----------------------------
+    // -----------------------------------------
     const stats = {
         excellent: filteredData.filter(
             (d) => d.rcaBucket === "Excellent"
@@ -307,21 +329,21 @@ export default function RCAQualityDashboard({
     };
 
     return (
-        <div className="min-h-screen w-full bg-gray-900 text-white p-6 flex flex-col gap-6">
+        <div className="min-h-screen w-full bg-gray-700 text-gray-900 p-6 font-sans flex flex-col gap-6">
 
-            {/* Header */}
-            <div className="flex justify-center bg-black py-8 rounded-xl shadow-xl">
-                <h1 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-yellow-300 to-green-400">
+            {/* Main Title */}
+            <div className="flex justify-center bg-gray-900 py-8">
+                <h1 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-white to-blue-500 drop-shadow-lg animate-fade-in">
                     RCA Quality Dashboard
                 </h1>
             </div>
 
             {/* Upload */}
-            <div className="bg-gray-800 rounded-xl p-4 shadow-lg">
+            <div className="my-4 animate-fade-in-delay">
                 <FileUpload setData={handleFileUpload}/>
             </div>
 
-            {/* Missing Columns Warning */}
+            {/* Missing Columns */}
             {missingColumns.length > 0 && (
                 <div className="bg-red-900 border border-red-500 text-red-100 p-4 rounded-xl">
                     <h2 className="font-bold text-lg mb-2">
@@ -330,46 +352,53 @@ export default function RCAQualityDashboard({
 
                     <ul className="list-disc ml-6">
                         {missingColumns.map((column) => (
-                            <li key={column}>{column}</li>
+                            <li key={column}>
+                                {column}
+                            </li>
                         ))}
                     </ul>
                 </div>
             )}
 
-            {/* Summary */}
+            {/* Stats */}
             {isFileUploaded && (
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div className="bg-green-700 rounded-xl p-6 shadow-lg">
+
+                    <div className="bg-green-700 rounded-xl p-6 shadow-lg text-white">
                         <h2 className="text-xl font-bold">
                             Excellent
                         </h2>
+
                         <p className="text-4xl font-extrabold">
                             {stats.excellent}
                         </p>
                     </div>
 
-                    <div className="bg-blue-700 rounded-xl p-6 shadow-lg">
+                    <div className="bg-blue-700 rounded-xl p-6 shadow-lg text-white">
                         <h2 className="text-xl font-bold">
                             Good
                         </h2>
+
                         <p className="text-4xl font-extrabold">
                             {stats.good}
                         </p>
                     </div>
 
-                    <div className="bg-yellow-600 rounded-xl p-6 shadow-lg">
+                    <div className="bg-yellow-600 rounded-xl p-6 shadow-lg text-white">
                         <h2 className="text-xl font-bold">
                             Poor
                         </h2>
+
                         <p className="text-4xl font-extrabold">
                             {stats.poor}
                         </p>
                     </div>
 
-                    <div className="bg-red-700 rounded-xl p-6 shadow-lg">
+                    <div className="bg-red-700 rounded-xl p-6 shadow-lg text-white">
                         <h2 className="text-xl font-bold">
                             Critical
                         </h2>
+
                         <p className="text-4xl font-extrabold">
                             {stats.critical}
                         </p>
@@ -379,54 +408,87 @@ export default function RCAQualityDashboard({
 
             {/* Filters */}
             {isFileUploaded && (
-                <div className="bg-gray-800 rounded-xl p-6 shadow-lg flex flex-col gap-4">
+                <div className="my-4 flex flex-col gap-4 animate-fade-in-delay-2">
 
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
 
                         {/* Bucket */}
                         <select
-                            className="bg-gray-700 p-3 rounded-lg"
+                            className="bg-gray-800 text-white p-3 rounded-lg"
                             value={filters.bucket}
                             onChange={(e) =>
                                 setFilters({
                                     ...filters,
-                                    bucket: e.target.value,
+                                    bucket:
+                                    e.target.value,
                                 })
                             }
                         >
-                            <option>All</option>
-                            <option>Excellent</option>
-                            <option>Good</option>
-                            <option>Poor</option>
-                            <option>Critical</option>
+                            <option value="All">
+                                All Buckets
+                            </option>
+
+                            <option value="Excellent">
+                                Excellent
+                            </option>
+
+                            <option value="Good">
+                                Good
+                            </option>
+
+                            <option value="Poor">
+                                Poor
+                            </option>
+
+                            <option value="Critical">
+                                Critical
+                            </option>
                         </select>
 
                         {/* Score Range */}
                         <select
-                            className="bg-gray-700 p-3 rounded-lg"
-                            value={filters.scoreRange}
+                            className="bg-gray-800 text-white p-3 rounded-lg"
+                            value={
+                                filters.scoreRange
+                            }
                             onChange={(e) =>
                                 setFilters({
                                     ...filters,
-                                    scoreRange: e.target.value,
+                                    scoreRange:
+                                    e.target.value,
                                 })
                             }
                         >
-                            <option value="All">All Scores</option>
-                            <option value="80+">80+</option>
-                            <option value="50-79">50-79</option>
-                            <option value="20-49">20-49</option>
-                            <option value="0-19">0-19</option>
+                            <option value="All">
+                                All Scores
+                            </option>
+
+                            <option value="80+">
+                                80+
+                            </option>
+
+                            <option value="50-79">
+                                50-79
+                            </option>
+
+                            <option value="20-49">
+                                20-49
+                            </option>
+
+                            <option value="0-19">
+                                0-19
+                            </option>
                         </select>
 
                         {/* Service */}
                         <select
-                            className="bg-gray-700 p-3 rounded-lg"
+                            className="bg-gray-800 text-white p-3 rounded-lg"
                             value={filters.service}
                             onChange={(e) =>
                                 setFilters({
                                     ...filters,
-                                    service: e.target.value,
+                                    service:
+                                    e.target.value,
                                 })
                             }
                         >
@@ -445,8 +507,12 @@ export default function RCAQualityDashboard({
                                 .filter(Boolean)
                                 .map((service) => (
                                     <option
-                                        key={service}
-                                        value={service}
+                                        key={
+                                            service
+                                        }
+                                        value={
+                                            service
+                                        }
                                     >
                                         {service}
                                     </option>
@@ -457,12 +523,13 @@ export default function RCAQualityDashboard({
                         <input
                             type="text"
                             placeholder="Search incidents..."
-                            className="bg-gray-700 p-3 rounded-lg"
+                            className="bg-gray-800 text-white p-3 rounded-lg"
                             value={filters.search}
                             onChange={(e) =>
                                 setFilters({
                                     ...filters,
-                                    search: e.target.value,
+                                    search:
+                                    e.target.value,
                                 })
                             }
                         />
@@ -474,10 +541,7 @@ export default function RCAQualityDashboard({
             {isFileUploaded && (
                 <>
                     {/* RCA Bucket Distribution */}
-                    <div
-                        id="rcaBucketChartSection"
-                        className="bg-gray-800 rounded-xl p-4 shadow-lg"
-                    >
+                    <div id="categoryChartSection">
                         <CategoryChart
                             data={filteredData}
                             title="RCA Bucket Distribution"
@@ -485,11 +549,8 @@ export default function RCAQualityDashboard({
                         />
                     </div>
 
-                    {/* RCA Score Distribution */}
-                    <div
-                        id="rcaScoreChartSection"
-                        className="bg-gray-800 rounded-xl p-4 shadow-lg"
-                    >
+                    {/* Incidents by Market */}
+                    <div id="marketChartSection">
                         <MarketChart
                             data={filteredData}
                             title="RCA Score Distribution"
@@ -497,52 +558,109 @@ export default function RCAQualityDashboard({
                         />
                     </div>
 
-                    {/* Impacted Services */}
+                    {/* RCA Incident Details Table */}
                     <div
-                        id="impactedServiceChartSection"
-                        className="bg-gray-800 rounded-xl p-4 shadow-lg"
+                        id="rcaIncidentDetailsSection"
+                        className="bg-gray-800 rounded-xl p-6 shadow-lg"
                     >
-                        <AgingChart
-                            data={filteredData}
-                            title="Impacted Services"
-                            dataKey="system_impacted"
-                        />
+                        <h2 className="text-2xl font-bold text-white mb-4">
+                            RCA Incident Details
+                        </h2>
+
+                        <div className="overflow-x-auto">
+                            <table className="min-w-full bg-gray-900 text-white rounded-xl overflow-hidden border-2 border-amber-300 shadow-xl">                                <thead className="bg-gray-700 text-left">
+                                <tr>
+                                    <th className="p-3">
+                                        Number
+                                    </th>
+
+                                    <th className="p-3">
+                                        Service Offering
+                                    </th>
+
+                                    <th className="p-3">
+                                        Resolved By
+                                    </th>
+
+                                    <th className="p-3">
+                                        Resolution Notes
+                                    </th>
+
+                                    <th className="p-3">
+                                        Score
+                                    </th>
+                                </tr>
+                                </thead>
+
+                                <tbody>
+                                {filteredData.map(
+                                    (
+                                        incident,
+                                        index
+                                    ) => (
+                                        <tr
+                                            key={
+                                                index
+                                            }
+                                            className={`border-b border-gray-700 ${
+                                                incident.rcaBucket === "Excellent"
+                                                    ? "bg-green-700 text-white"
+                                                    : incident.rcaBucket === "Good"
+                                                        ? "bg-blue-700 text-white"
+                                                        : incident.rcaBucket === "Poor"
+                                                            ? "bg-yellow-600 text-white"
+                                                            : "bg-red-700 text-white"
+                                            }`}
+                                        >
+                                            <td className="p-3">
+                                                {
+                                                    incident.Number
+                                                }
+                                            </td>
+
+                                            <td className="p-3">
+                                                {
+                                                    incident[
+                                                        "Service offering"
+                                                        ]
+                                                }
+                                            </td>
+
+                                            <td className="p-3">
+                                                {
+                                                    incident[
+                                                        "Resolved by"
+                                                        ]
+                                                }
+                                            </td>
+
+                                            <td className="p-3 max-w-xl whitespace-pre-wrap break-words">
+                                                {
+                                                    incident[
+                                                        "Resolution notes"
+                                                        ]
+                                                }
+                                            </td>
+
+                                            <td className="p-3 font-bold text-xl">
+                                                {
+                                                    incident.rcaScore
+                                                }
+                                            </td>
+                                        </tr>
+                                    )
+                                )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {/* Full RCA Incident Table */}
+                    <div id="incidentTableSection">
+                        <IncidentTable data={filteredData} />
                     </div>
                 </>
             )}
-
-            {/* Master Table */}
-            {isFileUploaded && (
-                <div
-                    id="rcaTableSection"
-                    className="bg-gray-800 rounded-xl p-4 shadow-lg"
-                >
-                    <IncidentTable
-                        data={filteredData}
-                        enableSearch={true}
-                        enablePagination={true}
-                        enableSorting={true}
-                        rowColorAccessor={(row) => {
-                            switch (row.rcaBucket) {
-                                case "Excellent":
-                                    return "bg-green-900";
-
-                                case "Good":
-                                    return "bg-blue-900";
-
-                                case "Poor":
-                                    return "bg-yellow-900";
-
-                                case "Critical":
-                                    return "bg-red-900";
-
-                                default:
-                                    return "";
-                            }
-                        }}
-                    />
-                </div>
-            )}
         </div>
+
     );
 }
