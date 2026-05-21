@@ -568,7 +568,9 @@ export default function RCAQualityDashboard({
                         </h2>
 
                         <div className="overflow-x-auto">
-                            <table className="min-w-full bg-gray-900 text-white rounded-xl overflow-hidden border-2 border-amber-300 shadow-xl">                                <thead className="bg-gray-700 text-left">
+                            <table
+                                className="min-w-full bg-gray-900 text-white rounded-xl overflow-hidden border-2 border-amber-300 shadow-xl">
+                                <thead className="bg-gray-700 text-left">
                                 <tr>
                                     <th className="p-3">
                                         Number
@@ -656,7 +658,7 @@ export default function RCAQualityDashboard({
                     </div>
                     {/* Full RCA Incident Table */}
                     <div id="incidentTableSection">
-                        <IncidentTable data={filteredData} />
+                        <IncidentTable data={filteredData}/>
                     </div>
                 </>
             )}
