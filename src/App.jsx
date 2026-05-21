@@ -9,7 +9,7 @@ import IncidentReportDashboard from "./components/IncidentReportDashboard.jsx";
 import ExcelFolderSearch from "./components/ExcelFolderSearch.jsx";
 import VoucherDecryption from "./components/VoucherDecryption.jsx";
 import THReconciliation from "./components/THReconciliation.jsx";
-
+import RCAQualityDashboard from "./components/RCAQualityDashboard";
 // Utilities
 import {processData} from "./utils.js";
 import "./index.css";
@@ -62,6 +62,18 @@ export default function App() {
                 <Route
                     path="/th-reconciliation"
                     element={<THReconciliation/>}
+                />
+                {/* RCA Quality Dashboard — usually does NOT need data props */}
+
+                <Route
+                    path="/rca-quality-dashboard"
+                    element={
+                        <RCAQualityDashboard
+                            data={data}
+                            setData={setData}
+                            onFileUpload={handleFileUpload}
+                        />
+                    }
                 />
             </Routes>
         </BrowserRouter>

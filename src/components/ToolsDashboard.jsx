@@ -1,7 +1,8 @@
 import React from "react";
 import {Card} from "./ui/card";
 import {useNavigate} from "react-router-dom";
-import { FiFileText, FiKey, FiSearch, FiCheckSquare } from "react-icons/fi";
+import {FiBarChart2, FiCheckSquare, FiFileText, FiKey, FiSearch} from "react-icons/fi";
+
 
 export default function ToolsDashboard() {
     const navigate = useNavigate();
@@ -29,7 +30,13 @@ export default function ToolsDashboard() {
             title: "TH Reconciliation",
             description: "Process and reconcile TH transaction records",
             path: "/th-reconciliation",
-            icon: <FiCheckSquare />
+            icon: <FiCheckSquare/>
+        },
+        {
+            title: "RCA Quality Dashboard",
+            description: "Analyze RCA quality scores and incident documentation",
+            path: "/rca-quality-dashboard",
+            icon: <FiBarChart2/>
         }
     ];
 
