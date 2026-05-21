@@ -637,11 +637,50 @@ export default function RCAQualityDashboard({
                                             </td>
 
                                             <td className="p-3 max-w-xl whitespace-pre-wrap break-words">
-                                                {
-                                                    incident[
-                                                        "Resolution notes"
-                                                        ]
-                                                }
+                                                {(() => {
+                                                    const notes =
+                                                        incident["Resolution notes"] || "";
+
+                                                    const keywords = [
+                                                        "because",
+                                                        "root cause",
+                                                        "due to",
+                                                        "caused by",
+                                                        "result of",
+                                                        "fixed by",
+                                                        "resolved by",
+                                                        "the issue was",
+                                                        "causa",
+                                                        "solución",
+                                                        "solucion",
+                                                        "resuelto",
+                                                        "se identificó",
+                                                        "se identifico",
+                                                    ];
+
+                                                    let highlightedText = notes;
+
+                                                    keywords.forEach((keyword) => {
+                                                        const regex = new RegExp(
+                                                            `(${keyword})`,
+                                                            "gi"
+                                                        );
+
+                                                        highlightedText =
+                                                            highlightedText.replace(
+                                                                regex,
+                                                                `<span class="text-yellow-300 font-extrabold">$1</span>`
+                                                            );
+                                                    });
+
+                                                    return (
+                                                        <span
+                                                            dangerouslySetInnerHTML={{
+                                                                __html: highlightedText,
+                                                            }}
+                                                        />
+                                                    );
+                                                })()}
                                             </td>
 
                                             <td className="p-3 font-bold text-xl">
