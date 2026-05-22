@@ -54,6 +54,7 @@ export default function RCAQualityDashboard({
     const [filters, setFilters] = useState({
         bucket: "All",
         service: "All",
+        serviceOffering: "All",
         scoreRange: "All",
         search: "",
     });
@@ -274,7 +275,10 @@ export default function RCAQualityDashboard({
                 filters.service === "All" ||
                 item.system_impacted ===
                 filters.service;
-
+            const serviceOfferingMatch =
+                filters.serviceOffering === "All" ||
+                item["Service offering"] ===
+                filters.serviceOffering;
             const scoreMatch =
                 filters.scoreRange === "All" ||
                 (filters.scoreRange === "80+" &&
@@ -299,6 +303,7 @@ export default function RCAQualityDashboard({
             return (
                 bucketMatch &&
                 serviceMatch &&
+                serviceOfferingMatch &&
                 scoreMatch &&
                 searchMatch
             );
@@ -362,7 +367,7 @@ export default function RCAQualityDashboard({
 
             {/* Stats */}
             {isFileUploaded && (
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
 
                     <div className="bg-green-700 rounded-xl p-6 shadow-lg text-white">
                         <h2 className="text-xl font-bold">
@@ -518,7 +523,38 @@ export default function RCAQualityDashboard({
                                     </option>
                                 ))}
                         </select>
+                        {/* Service Offering */}
+                        <select
+                            className="bg-gray-800 text-white p-3 rounded-lg"
+                            value={filters.serviceOffering}
+                            onChange={(e) =>
+                                setFilters({
+                                    ...filters,
+                                    serviceOffering: e.target.value,
+                                })
+                            }
+                        >
+                            <option value="All">
+                                All Service Offerings
+                            </option>
 
+                            {[
+                                ...new Set(
+                                    data.map(
+                                        (d) => d["Service offering"]
+                                    )
+                                ),
+                            ]
+                                .sort((a, b) => String(a).localeCompare(String(b)))
+                                .map((serviceOffering) => (
+                                    <option
+                                        key={serviceOffering || "blank"}
+                                        value={serviceOffering}
+                                    >
+                                        {serviceOffering || "(Blank Service Offering)"}
+                                    </option>
+                                ))}
+                        </select>
                         {/* Search */}
                         <input
                             type="text"
