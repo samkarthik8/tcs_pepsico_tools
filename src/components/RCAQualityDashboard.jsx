@@ -49,6 +49,7 @@ export default function RCAQualityDashboard({
         bucket: "All",
         service: "All",
         serviceOffering: "All",
+        resolvedBy: "All",
         scoreRange: "All",
         search: "",
     });
@@ -230,6 +231,10 @@ export default function RCAQualityDashboard({
                 filters.serviceOffering === "All" ||
                 item["Service offering"] ===
                 filters.serviceOffering;
+            const resolvedByMatch =
+                filters.resolvedBy === "All" ||
+                item["Resolved by"] ===
+                filters.resolvedBy;
             const scoreMatch =
                 filters.scoreRange === "All" ||
                 (filters.scoreRange === "80+" &&
@@ -253,6 +258,7 @@ export default function RCAQualityDashboard({
                 bucketMatch &&
                 serviceMatch &&
                 serviceOfferingMatch &&
+                resolvedByMatch &&
                 scoreMatch &&
                 searchMatch
             );
@@ -467,6 +473,41 @@ export default function RCAQualityDashboard({
                                         value={serviceOffering}
                                     >
                                         {serviceOffering || "(Blank Service Offering)"}
+                                    </option>
+                                ))}
+                        </select>
+                        {/* Resolved By */}
+                        <select
+                            className="bg-gray-800 text-white p-3 rounded-lg"
+                            value={filters.resolvedBy}
+                            onChange={(e) =>
+                                setFilters({
+                                    ...filters,
+                                    resolvedBy: e.target.value,
+                                })
+                            }
+                        >
+                            <option value="All">
+                                All Resolved By
+                            </option>
+
+                            {[
+                                ...new Set(
+                                    data.map(
+                                        (d) => d["Resolved by"]
+                                    )
+                                ),
+                            ]
+                                .sort((a, b) =>
+                                    String(a).localeCompare(String(b))
+                                )
+                                .map((resolvedBy) => (
+                                    <option
+                                        key={resolvedBy || "blank"}
+                                        value={resolvedBy}
+                                    >
+                                        {resolvedBy ||
+                                            "(Blank Resolved By)"}
                                     </option>
                                 ))}
                         </select>
