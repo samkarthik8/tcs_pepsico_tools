@@ -54,6 +54,8 @@ export default function RCAQualityDashboard({
         search: "",
     });
     const [missingColumns, setMissingColumns] = useState([]);
+    const [liveResolutionNotes, setLiveResolutionNotes] =
+        useState("");
     // -----------------------------------------
     // Utility: Find Column Dynamically
     // -----------------------------------------
@@ -220,25 +222,20 @@ export default function RCAQualityDashboard({
     // -----------------------------------------
     const filteredOptionsData = useMemo(() => {
         return data.filter((item) => {
-
             const bucketMatch =
                 filters.bucket === "All" ||
                 item.rcaBucket === filters.bucket;
-
             const serviceMatch =
                 filters.service === "All" ||
                 item.system_impacted === filters.service;
-
             const serviceOfferingMatch =
                 filters.serviceOffering === "All" ||
                 item["Service offering"] ===
                 filters.serviceOffering;
-
             const resolvedByMatch =
                 filters.resolvedBy === "All" ||
                 item["Resolved by"] ===
                 filters.resolvedBy;
-
             const scoreMatch =
                 filters.scoreRange === "All" ||
                 (filters.scoreRange === "80+" &&
@@ -251,7 +248,6 @@ export default function RCAQualityDashboard({
                     item.rcaScore < 50) ||
                 (filters.scoreRange === "0-19" &&
                     item.rcaScore < 20);
-
             return (
                 bucketMatch &&
                 serviceMatch &&
@@ -261,8 +257,6 @@ export default function RCAQualityDashboard({
             );
         });
     }, [data, filters]);
-
-
     const filteredData = useMemo(() => {
         return data.filter((item) => {
             const bucketMatch =
@@ -327,6 +321,47 @@ export default function RCAQualityDashboard({
             (d) => d.rcaBucket === "Critical"
         ).length,
     };
+    const liveChecks = useMemo(() => {
+        const notes =
+            liveResolutionNotes.trim();
+        const lowerNotes =
+            notes.toLowerCase();
+        const hasNotes =
+            notes.length > 0;
+        const over20 =
+            notes.length > 20;
+        const over50 =
+            notes.length > 50;
+        const hasCausalKeyword =
+            CAUSAL_KEYWORDS.some((keyword) =>
+                lowerNotes.includes(
+                    keyword.toLowerCase()
+                )
+            );
+        let score = 45;
+        if (hasNotes) {
+            score += 20;
+        }
+        if (over20) {
+            score += 15;
+        }
+        if (over50) {
+            score += 10;
+        }
+        if (hasCausalKeyword) {
+            score += 10;
+        }
+        score = Math.min(score, 100);
+        return {
+            hasNotes,
+            over20,
+            over50,
+            hasCausalKeyword,
+            score,
+        };
+    }, [liveResolutionNotes]);
+    const liveRCAScore =
+        liveChecks.score;
     return (
         <div className="min-h-screen w-full bg-gray-700 text-gray-900 p-6 font-sans flex flex-col gap-6">
             {/* Main Title */}
@@ -335,9 +370,113 @@ export default function RCAQualityDashboard({
                     RCA Quality Dashboard
                 </h1>
             </div>
-            {/* Upload */}
-            <div className="my-4 animate-fade-in-delay">
-                <FileUpload setData={handleFileUpload}/>
+            {/* RCA Live Score Analyzer */}
+            <div className="bg-gray-800 rounded-2xl p-6 shadow-2xl border-2 border-black-400">
+                <div className="flex flex-col lg:flex-row gap-6 items-start">
+                    {/* Left Side */}
+                    <div className="flex-shrink-0">
+                        <FileUpload setData={handleFileUpload}/>
+                    </div>
+                    {/* Right Side */}
+                    <div className="flex-1 w-full">
+                        {/* Text Area */}
+                        <textarea
+                            rows={10}
+                            placeholder="Type Resolution Notes here..."
+                            className="w-full bg-gray-900 text-white p-4 rounded-xl border-2 border-black-400 focus:outline-none focus:ring-2 focus:ring-black-300 resize-y"
+                            value={liveResolutionNotes}
+                            onChange={(e) =>
+                                setLiveResolutionNotes(
+                                    e.target.value
+                                )
+                            }
+                        />
+                        {/* Score */}
+                        <div className="mt-4">
+                            <h2 className="text-2xl font-bold text-white">
+                                Live RCA Score:
+                                <span className="text-yellow-300 ml-2">
+                        {liveRCAScore}/100
+                    </span>
+                            </h2>
+                            <h4 className="text-1xl font-bold text-gray-400">
+                                (Ensure Root cause category, resolution type, and system impacted are properly
+                                selected in SNOW)
+                            </h4>
+                        </div>
+                        {/* Conditions */}
+                        <div className="mt-6 space-y-3">
+                            {/* Condition 1 */}
+                            <div
+                                className={`p-3 rounded-lg font-semibold ${
+                                    liveChecks.hasNotes
+                                        ? "bg-green-700 text-white"
+                                        : "bg-gray-700 text-gray-300"
+                                }`}
+                            >
+                                +20 → Resolution notes entered
+                            </div>
+                            {/* Condition 2 */}
+                            <div
+                                className={`p-3 rounded-lg font-semibold ${
+                                    liveChecks.over20
+                                        ? "bg-green-700 text-white"
+                                        : "bg-gray-700 text-gray-300"
+                                }`}
+                            >
+                                +15 → More than 20 characters
+                            </div>
+                            {/* Condition 3 */}
+                            <div
+                                className={`p-3 rounded-lg font-semibold ${
+                                    liveChecks.over50
+                                        ? "bg-green-700 text-white"
+                                        : "bg-gray-700 text-gray-300"
+                                }`}
+                            >
+                                +10 → More than 50 characters
+                            </div>
+                            {/* Condition 4 */}
+                            <div
+                                className={`p-3 rounded-lg font-semibold ${
+                                    liveChecks.hasCausalKeyword
+                                        ? "bg-green-700 text-white"
+                                        : "bg-gray-700 text-gray-300"
+                                }`}
+                            >
+                                +10 → Contains causal phrase
+                            </div>
+                        </div>
+                        {/* Causal Keywords */}
+                        <div className="mt-8">
+                            <h3 className="text-xl font-bold text-yellow-300 mb-3">
+                                Supported Causal Phrases
+                            </h3>
+                            <div className="flex flex-wrap gap-3">
+                                {CAUSAL_KEYWORDS.map((keyword) => {
+                                    const isUsed =
+                                        liveResolutionNotes
+                                            .toLowerCase()
+                                            .includes(
+                                                keyword.toLowerCase()
+                                            );
+                                    return (
+                                        <div
+                                            key={keyword}
+                                            className={`px-4 py-2 rounded-full text-sm font-bold transition-all ${
+                                                isUsed
+                                                    ? "bg-green-600 text-white scale-105"
+                                                    : "bg-gray-700 text-gray-300"
+                                            }`}
+                                        >
+                                            {keyword}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             {/* Missing Columns */}
             {missingColumns.length > 0 && (
@@ -394,7 +533,7 @@ export default function RCAQualityDashboard({
             {/* Filters */}
             {isFileUploaded && (
                 <div className="my-4 flex flex-col gap-4 animate-fade-in-delay-2">
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
                         {/* Bucket */}
                         <select
                             className="bg-gray-800 text-white p-3 rounded-lg"
@@ -535,7 +674,6 @@ export default function RCAQualityDashboard({
                             <option value="All">
                                 All Resolved By
                             </option>
-
                             {[
                                 ...new Set(
                                     filteredOptionsData.map(
