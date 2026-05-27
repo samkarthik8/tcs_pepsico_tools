@@ -218,6 +218,51 @@ export default function RCAQualityDashboard({
     // -----------------------------------------
     // Filters
     // -----------------------------------------
+    const filteredOptionsData = useMemo(() => {
+        return data.filter((item) => {
+
+            const bucketMatch =
+                filters.bucket === "All" ||
+                item.rcaBucket === filters.bucket;
+
+            const serviceMatch =
+                filters.service === "All" ||
+                item.system_impacted === filters.service;
+
+            const serviceOfferingMatch =
+                filters.serviceOffering === "All" ||
+                item["Service offering"] ===
+                filters.serviceOffering;
+
+            const resolvedByMatch =
+                filters.resolvedBy === "All" ||
+                item["Resolved by"] ===
+                filters.resolvedBy;
+
+            const scoreMatch =
+                filters.scoreRange === "All" ||
+                (filters.scoreRange === "80+" &&
+                    item.rcaScore >= 80) ||
+                (filters.scoreRange === "50-79" &&
+                    item.rcaScore >= 50 &&
+                    item.rcaScore < 80) ||
+                (filters.scoreRange === "20-49" &&
+                    item.rcaScore >= 20 &&
+                    item.rcaScore < 50) ||
+                (filters.scoreRange === "0-19" &&
+                    item.rcaScore < 20);
+
+            return (
+                bucketMatch &&
+                serviceMatch &&
+                serviceOfferingMatch &&
+                resolvedByMatch &&
+                scoreMatch
+            );
+        });
+    }, [data, filters]);
+
+
     const filteredData = useMemo(() => {
         return data.filter((item) => {
             const bucketMatch =
@@ -425,7 +470,7 @@ export default function RCAQualityDashboard({
                             </option>
                             {[
                                 ...new Set(
-                                    data.map(
+                                    filteredOptionsData.map(
                                         (d) =>
                                             d.system_impacted
                                     )
@@ -461,7 +506,7 @@ export default function RCAQualityDashboard({
                             </option>
                             {[
                                 ...new Set(
-                                    data.map(
+                                    filteredOptionsData.map(
                                         (d) => d["Service offering"]
                                     )
                                 ),
@@ -493,7 +538,7 @@ export default function RCAQualityDashboard({
 
                             {[
                                 ...new Set(
-                                    data.map(
+                                    filteredOptionsData.map(
                                         (d) => d["Resolved by"]
                                     )
                                 ),
