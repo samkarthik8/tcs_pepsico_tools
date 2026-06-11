@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {BrowserRouter, Route, Routes} from "react-router-dom";
+import {HashRouter, Route, Routes} from "react-router-dom";
 
 // Home Tools Dashboard
 import ToolsDashboard from "./components/ToolsDashboard.jsx";
@@ -24,7 +24,7 @@ export default function App() {
     };
 
     return (
-        <BrowserRouter>
+        <HashRouter>
             <Routes>
                 {/* MAIN HOME DASHBOARD */}
                 <Route path="/" element={<ToolsDashboard/>}/>
@@ -76,6 +76,6 @@ export default function App() {
                     }
                 />
             </Routes>
-        </BrowserRouter>
+        </HashRouter>
     );
 }
