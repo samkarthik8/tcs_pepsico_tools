@@ -1,7 +1,7 @@
 {
-  "name": "incidentreport",
+  "name": "tcs_pepsico_tools",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.2.0",
   "type": "module",
   "main": "electron/main.cjs",
   "scripts": {
@@ -53,8 +53,8 @@
     "vite": "7.1.11"
   },
   "build": {
-    "appId": "com.incidentreport.dashboard",
-    "productName": "Incident Report Dashboard",
+    "appId": "com.tcs_pepsico_tools.dashboard",
+    "productName": "TCS PepsiCo Tools",
     "directories": {
       "output": "release"
     },
@@ -63,6 +63,7 @@
       "electron/**/*"
     ],
     "win": {
+      "icon": "electron/assets/pepsico.ico",
       "target": "nsis"
     },
     "nsis": {

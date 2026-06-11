@@ -46,6 +46,9 @@ export default function ToolsDashboard() {
             <h1 className="text-4xl font-extrabold text-white mb-10">
                 TCS PepsiCo Tools
             </h1>
+            <div className="fixed bottom-3 right-4 text-xs text-gray-400">
+                v1.2.0
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-6xl">
                 {tools.map((tool, index) => (

@@ -1,24 +1,34 @@
-const { app, BrowserWindow } = require("electron");
+const {app, BrowserWindow} = require("electron");
 const path = require("path");
 
-function createWindow() {
+function createMainWindow() {
     const win = new BrowserWindow({
-        width: 1600,
-        height: 900,
-        autoHideMenuBar: true
+        autoHideMenuBar: true,
+        icon: path.join(__dirname, "assets/pepsico.ico")
     });
-
-    const filePath = path.join(__dirname, "../dist/index.html");
-
-    console.log("Loading:", filePath);
-
-    win.loadFile(filePath);
-
+    win.maximize();
+    win.loadFile(
+        path.join(__dirname, "../dist/index.html")
+    );
     // win.webContents.openDevTools();
-
-    win.webContents.on("did-fail-load", (event, errorCode, errorDescription) => {
-        console.log("LOAD FAILED:", errorCode, errorDescription);
-    });
 }
 
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+    // Splash Screen
+    const splash = new BrowserWindow({
+        width: 600,
+        height: 300,
+        frame: false,
+        alwaysOnTop: true,
+        resizable: false,
+        movable: false,
+    });
+    splash.loadFile(
+        path.join(__dirname, "splash.html")
+    );
+    // Show splash for 2.5 seconds
+    setTimeout(() => {
+        splash.close();
+        createMainWindow();
+    }, 2500);
+});
