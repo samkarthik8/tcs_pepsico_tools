@@ -54,7 +54,8 @@
   },
   "build": {
     "appId": "com.tcs_pepsico_tools.dashboard",
-    "productName": "TCS PepsiCo Tools",
+    "productName": "TCS PepsiCo Tools v1.2.0",
+    "artifactName": "TCS-PepsiCo-Tools-Setup-v${version}.${ext}",
     "directories": {
       "output": "release"
     },
