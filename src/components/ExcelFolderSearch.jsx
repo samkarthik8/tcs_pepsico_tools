@@ -4,6 +4,7 @@ import * as mammoth from "mammoth";
 import {AnimatePresence, motion} from "framer-motion";
 import {ChevronLeft, ChevronRight} from "lucide-react";
 import pepsicoLogo from "../assets/pepsico_logo.png";
+import HomeButton from "./ui/HomeButton.jsx";
 
 export default function ExcelFolderSearch() {
     const [filesData, setFilesData] = useState([]);
@@ -195,6 +196,7 @@ export default function ExcelFolderSearch() {
     return (
         <div
             className="min-h-screen w-full bg-gradient-to-b from-blue-900 via-blue-950 to-blue-900 text-gray-100 p-8 font-sans flex flex-col items-center">
+            <HomeButton />
             {/* Header */}
             <div className="flex items-center justify-center gap-4 mb-8 animate-fade-in">
                 <img src={pepsicoLogo} alt="Pepsico Logo" className="h-16"/>

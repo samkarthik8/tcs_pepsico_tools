@@ -4,6 +4,7 @@ import Papa from "papaparse";
 import {Download, Loader2, Upload} from "lucide-react";
 import pepsicoLogo from "../assets/pepsico_logo.png";
 import {decryptVoucher} from "../services/DecryptService";
+import HomeButton from "./ui/HomeButton.jsx";
 
 // Extracted Query — Single Source of Truth
 const QUERY_STRING = "SELECT * FROM object_cep_digital_code;";
@@ -131,6 +132,7 @@ export default function VoucherDecryptor() {
     return (
         <div
             className="min-h-screen w-full bg-gradient-to-br from-[#001f3f] via-[#004B93] to-[#001f3f] text-white p-10 font-sans flex flex-col items-center">
+            <HomeButton />
             {/* Header */}
             <div className="flex items-center justify-center gap-8 mb-14">
                 <img src={pepsicoLogo} alt="PepsiCo Logo" className="h-28 drop-shadow-2xl"/>

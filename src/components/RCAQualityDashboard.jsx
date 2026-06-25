@@ -3,6 +3,7 @@ import FileUpload from "./FileUpload.jsx";
 import CategoryChart from "./CategoryChart.jsx";
 import MarketChart from "./MarketChart.jsx";
 import IncidentTable from "./IncidentTable.jsx";
+import HomeButton from "./ui/HomeButton.jsx";
 
 const REQUIRED_COLUMNS = [
     "Number",
@@ -364,6 +365,7 @@ export default function RCAQualityDashboard({
         liveChecks.score;
     return (
         <div className="min-h-screen w-full bg-gray-700 text-gray-900 p-6 font-sans flex flex-col gap-6">
+            <HomeButton/>
             {/* Main Title */}
             <div className="flex justify-center bg-gray-900 py-8">
                 <h1 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-white to-blue-500 drop-shadow-lg animate-fade-in">
