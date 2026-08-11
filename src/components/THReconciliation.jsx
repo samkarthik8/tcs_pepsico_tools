@@ -1,20 +1,52 @@
-// THReconciliation.jsx
+﻿// THReconciliation.jsx
 import React, {useState} from "react";
 import Papa from "papaparse";
-import {Download, Loader2, Upload} from "lucide-react";
+import {Database, Download, Loader2} from "lucide-react";
 import pepsicoLogo from "../assets/pepsico_logo.png";
-import {decryptVoucher} from "../services/DecryptService";
+// import {decryptVoucher} from "../services/DecryptService";
 import HomeButton from "./ui/HomeButton.jsx";
 
 // Extracted Query — Single Source of Truth
-const QUERY_STRING = "SELECT * FROM object_cep_digital_code;";
+const QUERY_STRING = `SELECT store_id AS "Store",
+total_points AS "Points Balance"
+FROM th_prod.reward_engine_user
+WHERE total_points > 0;`;
 
 export default function THReconciliation() {
     const [rows, setRows] = useState([]);
     const [processing, setProcessing] = useState(false);
     const [parsedCount, setParsedCount] = useState(0);
     const [totalCount, setTotalCount] = useState(0);
+    const [trinoPassword, setTrinoPassword] = useState("");
+    const [queryRows, setQueryRows] = useState([]);
+    const [queryColumns, setQueryColumns] = useState([]);
+    const [queryLoading, setQueryLoading] = useState(false);
+    const [queryError, setQueryError] = useState("");
+    const [queryTruncated, setQueryTruncated] = useState(false);
 
+    const runTrinoQuery = async () => {
+        if (!window.thReconciliation?.runQuery) {
+            setQueryError("This feature is available only in the EXE.");
+            return;
+        }
+        if (!trinoPassword) {
+            setQueryError("Enter your Trino password.");
+            return;
+        }
+        setQueryLoading(true);
+        setQueryError("");
+        setQueryRows([]);
+        try {
+            const result = await window.thReconciliation.runQuery(trinoPassword);
+            setQueryColumns(result.columns || []);
+            setQueryRows(result.rows || []);
+            setQueryTruncated(Boolean(result.truncated));
+        } catch (error) {
+            setQueryError(error.message || "Unable to retrieve data from Trino.");
+        } finally {
+            setQueryLoading(false);
+        }
+    };
     // Count rows first for progress estimation
     const countRows = (file) =>
         new Promise((resolve) => {
@@ -29,52 +61,52 @@ export default function THReconciliation() {
             });
         });
 
-    const handleUpload = async (ev) => {
-        const file = ev.target.files?.[0];
-        if (!file) return;
-
-        setProcessing(true);
-        setParsedCount(0);
-
-        const rowEstimate = await countRows(file);
-        setTotalCount(rowEstimate);
-
-        const parsedRows = [];
-
-        Papa.parse(file, {
-            header: true,
-            skipEmptyLines: true,
-            worker: true,
-            step: (results) => {
-                const r = results.data;
-                const codeKey = Object.keys(r).find((k) => k.toLowerCase() === "code") || "Code";
-                const encrypted = r[codeKey] || "";
-                const decrypted = encrypted ? decryptVoucher(encrypted) : "[No Code]";
-
-                parsedRows.push({
-                    Decrypted: decrypted,
-                    Encrypted: encrypted,
-                    ...r,
-                });
-
-                if (parsedRows.length % 100 === 0) {
-                    setParsedCount(parsedRows.length);
-                }
-            },
-            complete: () => {
-                setRows(parsedRows);
-                setParsedCount(parsedRows.length);
-                setProcessing(false);
-            },
-            error: (err) => {
-                console.error("CSV parse error:", err);
-                alert("Failed to parse CSV.");
-                setProcessing(false);
-                setParsedCount(0);
-                setTotalCount(0);
-            },
-        });
-    };
+    // const handleUpload = async (ev) => {
+    //     const file = ev.target.files?.[0];
+    //     if (!file) return;
+    //
+    //     setProcessing(true);
+    //     setParsedCount(0);
+    //
+    //     const rowEstimate = await countRows(file);
+    //     setTotalCount(rowEstimate);
+    //
+    //     const parsedRows = [];
+    //
+    //     Papa.parse(file, {
+    //         header: true,
+    //         skipEmptyLines: true,
+    //         worker: true,
+    //         step: (results) => {
+    //             const r = results.data;
+    //             const codeKey = Object.keys(r).find((k) => k.toLowerCase() === "code") || "Code";
+    //             const encrypted = r[codeKey] || "";
+    //             const decrypted = encrypted ? decryptVoucher(encrypted) : "[No Code]";
+    //
+    //             parsedRows.push({
+    //                 Decrypted: decrypted,
+    //                 Encrypted: encrypted,
+    //                 ...r,
+    //             });
+    //
+    //             if (parsedRows.length % 100 === 0) {
+    //                 setParsedCount(parsedRows.length);
+    //             }
+    //         },
+    //         complete: () => {
+    //             setRows(parsedRows);
+    //             setParsedCount(parsedRows.length);
+    //             setProcessing(false);
+    //         },
+    //         error: (err) => {
+    //             console.error("CSV parse error:", err);
+    //             alert("Failed to parse CSV.");
+    //             setProcessing(false);
+    //             setParsedCount(0);
+    //             setTotalCount(0);
+    //         },
+    //     });
+    // };
 
     // Optimized CSV Export
     const exportCsvOptimized = () => {
@@ -132,7 +164,7 @@ export default function THReconciliation() {
     return (
         <div
             className="min-h-screen w-full bg-gradient-to-br from-[#001f3f] via-[#004B93] to-[#001f3f] text-white p-10 font-sans flex flex-col items-center">
-            <HomeButton />
+            <HomeButton/>
             {/* Header */}
             <div className="flex items-center justify-center gap-8 mb-14">
                 <img src={pepsicoLogo} alt="PepsiCo Logo" className="h-28 drop-shadow-2xl"/>
@@ -145,19 +177,19 @@ export default function THReconciliation() {
             <div
                 className="flex flex-col items-center gap-10 w-full max-w-5xl bg-white/10 backdrop-blur-2xl p-12 rounded-3xl shadow-2xl border border-white/20">
 
-                {/* Upload Button */}
-                <label
-                    className="bg-[#004B93] hover:bg-[#003d7a] active:bg-[#002b5b] px-12 py-6 rounded-2xl cursor-pointer text-white font-bold text-xl shadow-2xl flex items-center gap-5 transition-all hover:scale-105 active:scale-98 border-2 border-[#00AEEF]/50">
-                    <Upload size={34}/>
-                    Upload CSV File
-                    <input type="file" accept=".csv" onChange={handleUpload} className="hidden"/>
-                </label>
+                {/*/!* Upload Button *!/*/}
+                {/*<label*/}
+                {/*    className="bg-[#004B93] hover:bg-[#003d7a] active:bg-[#002b5b] px-12 py-6 rounded-2xl cursor-pointer text-white font-bold text-xl shadow-2xl flex items-center gap-5 transition-all hover:scale-105 active:scale-98 border-2 border-[#00AEEF]/50">*/}
+                {/*    <Upload size={34}/>*/}
+                {/*    Upload CSV File*/}
+                {/*    <input type="file" accept=".csv" onChange={handleUpload} className="hidden"/>*/}
+                {/*</label>*/}
 
-                {/* Query Display Box — Now uses extracted constant */}
+                {/* Query Display Box - Now uses extracted constant */}
                 <div className="w-full bg-black/30 p-8 rounded-2xl border border-white/10 shadow-2xl backdrop-blur">
                     <div className="flex justify-between items-center mb-4">
             <span className="text-gray-200 font-semibold text-lg">
-              Select Query for object_cep_digital_code table:
+              Trino query for reward-engine user balances:
             </span>
                         <button
                             onClick={() => navigator.clipboard.writeText(QUERY_STRING)}
@@ -171,10 +203,50 @@ export default function THReconciliation() {
             {QUERY_STRING}
           </pre>
                     <p className="mt-4 text-gray-300 text-sm">
-                        Decrypted values will be computed and included in the exported file.
+                        Enter your password to run this approved read-only query. Your password is not saved by the app.
                     </p>
                 </div>
 
+
+                <div className="w-full flex flex-col gap-4">
+                    <label className="text-gray-100 font-semibold" htmlFor="trino-password">Trino password</label>
+                    <div className="flex flex-col sm:flex-row gap-4">
+                        <input id="trino-password" type="password" value={trinoPassword}
+                               onChange={(event) => setTrinoPassword(event.target.value)}
+                               onKeyDown={(event) => event.key === "Enter" && runTrinoQuery()}
+                               placeholder="Enter password"
+                               className="flex-1 px-5 py-4 rounded-xl bg-white text-[#001f3f] border-2 border-[#00AEEF]/50 outline-none"
+                               autoComplete="current-password"/>
+                        <button onClick={runTrinoQuery} disabled={queryLoading}
+                                className="bg-[#E4002B] disabled:opacity-60 hover:bg-[#c70024] px-7 py-4 rounded-xl font-bold flex items-center justify-center gap-3">
+                            {queryLoading ? <Loader2 className="animate-spin"/> : <Database/>}
+                            {queryLoading ? "Running query..." : "Run Trino Query"}
+                        </button>
+                    </div>
+                    {queryError && <p className="text-red-200 font-medium">{queryError}</p>}
+                </div>
+
+                {queryColumns.length > 0 && !queryLoading && (
+                    <div className="w-full overflow-x-auto rounded-2xl border border-white/20">
+                        <div className="px-5 py-4 bg-black/30 font-semibold">
+                            {queryRows.length.toLocaleString()} result{queryRows.length === 1 ? "" : "s"}
+                            {queryTruncated && " (limited to 50,000 rows)"}
+                        </div>
+                        <table className="w-full text-left bg-white/10">
+                            <thead className="bg-[#001f3f]/90 text-[#00AEEF]">
+                            <tr>
+                                {queryColumns.map((column) => <th key={column} className="px-5 py-3">{column}</th>)}
+                            </tr>
+                            </thead>
+                            <tbody>{queryRows.map((row, rowIndex) => (
+                                <tr key={rowIndex} className="border-t border-white/10">
+                                    {queryColumns.map((_, columnIndex) => <td key={columnIndex}
+                                                                              className="px-5 py-3">{row[columnIndex] ?? ""}</td>)}
+                                </tr>
+                            ))}</tbody>
+                        </table>
+                    </div>
+                )}
                 {/* Processing State */}
                 {processing && (
                     <div className="flex flex-col items-center gap-6 w-full mt-6">
@@ -210,7 +282,7 @@ export default function THReconciliation() {
                                 Loaded: <span className="text-[#E4002B]">{rowCount.toLocaleString()}</span> vouchers
                             </p>
                             <p className="text-gray-300 mt-4 text-sm font-medium">
-                                Columns: {Object.keys(rows[0] || {}).join(" • ")}
+                                Columns: {Object.keys(rows[0] || {}).join(" â€¢ ")}
                             </p>
                         </div>
                     </div>
