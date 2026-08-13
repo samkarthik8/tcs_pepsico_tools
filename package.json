@@ -25,6 +25,7 @@
     "html2canvas": "^1.4.1",
     "lucide-react": "^0.545.0",
     "mammoth": "^1.11.0",
+    "node": "^26.7.0",
     "papaparse": "^5.5.3",
     "postcss": "^8.5.6",
     "pptxgenjs": "^4.0.1",
@@ -43,7 +44,7 @@
     "@types/react": "^19.1.16",
     "@types/react-dom": "^19.1.9",
     "@vitejs/plugin-react": "^5.0.4",
-    "electron": "^42.5.0",
+    "electron": "^42.9.0",
     "electron-builder": "^26.15.3",
     "eslint": "^9.36.0",
     "eslint-plugin-react-hooks": "^5.2.0",
@@ -55,7 +56,11 @@
   "build": {
     "appId": "com.tcs_pepsico_tools.dashboard",
     "productName": "TCS PepsiCo Tools v1.2.5",
-    "artifactName": "TCS-PepsiCo-Tools-v${version}.${ext}",
+    "electronDist": "node_modules/electron/dist",
+    "artifactName": "TCS-PepsiCo-Tools-Portable-v${version}.${ext}",
+    "electronDownload": {
+      "mirror": "https://npmmirror.com/mirrors/electron/"
+    },
     "directories": {
       "output": "release"
     },
