@@ -47,7 +47,7 @@ export default function ToolsDashboard() {
                 TCS PepsiCo Tools
             </h1>
             <div className="fixed bottom-3 right-4 text-xs text-gray-400">
-                v1.4.0
+                v1.2.5
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-6xl">
