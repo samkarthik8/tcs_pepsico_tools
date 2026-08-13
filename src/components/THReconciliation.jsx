@@ -19,7 +19,7 @@ export default function THReconciliation() {
     const [queryColumns, setQueryColumns] = useState([]);
     const [queryLoading, setQueryLoading] = useState(false);
     const [queryError, setQueryError] = useState("");
-    const [queryTruncated, setQueryTruncated] = useState(false);
+    // const [queryTruncated, setQueryTruncated] = useState(false);
 
     const displayedRows = useMemo(
         () => queryRows.slice(0, DISPLAY_ROW_LIMIT),
@@ -40,13 +40,13 @@ export default function THReconciliation() {
         setQueryError("");
         setQueryRows([]);
         setQueryColumns([]);
-        setQueryTruncated(false);
+        // setQueryTruncated(false);
 
         try {
             const result = await window.thReconciliation.runQuery(trinoPassword);
             setQueryColumns(result.columns || []);
             setQueryRows(result.rows || []);
-            setQueryTruncated(Boolean(result.truncated));
+            // setQueryTruncated(Boolean(result.truncated));
         } catch (error) {
             setQueryError(error.message || "Unable to retrieve data from Trino.");
         } finally {
@@ -111,10 +111,9 @@ export default function THReconciliation() {
                 {queryColumns.length > 0 && !queryLoading && (
                     <div className="w-full overflow-x-auto rounded-2xl border border-white/20">
                         <div className="px-5 py-4 bg-black/30 font-semibold flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
-                            <span>
-                                Showing {displayedRows.length.toLocaleString()} of {queryRows.length.toLocaleString()} result{queryRows.length === 1 ? "" : "s"}
-                                {queryTruncated && " (retrieval limited to 50,000 rows)"}
-                            </span>
+                        <span>
+    Showing {displayedRows.length.toLocaleString()} of {queryRows.length.toLocaleString()} retrieved rows
+</span>
                             <button onClick={exportQueryCsv} className="bg-[#E4002B] hover:bg-[#c70024] px-4 py-2 rounded-lg font-bold flex items-center justify-center gap-2">
                                 <Download size={18}/> Export query output CSV
                             </button>
