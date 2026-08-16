@@ -1,7 +1,7 @@
 import React from "react";
 import {Card} from "./ui/card";
 import {useNavigate} from "react-router-dom";
-import {FiBarChart2, FiCheckSquare, FiFileText, FiKey, FiSearch, FiTerminal} from "react-icons/fi";
+import {FiBarChart2, FiCheckSquare, FiFileText, FiKey, FiSearch, FiDatabase} from "react-icons/fi";
 
 
 export default function ToolsDashboard() {
@@ -42,7 +42,7 @@ export default function ToolsDashboard() {
             title: "Trino Connection",
             description: "Run queries on catalogs and schemas via Trino",
             path: "/trino-connection",
-            icon: <FiTerminal/>
+            icon: <FiDatabase/>
         }
     ];
 
