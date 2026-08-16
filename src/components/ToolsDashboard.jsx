@@ -1,7 +1,7 @@
 import React from "react";
 import {Card} from "./ui/card";
 import {useNavigate} from "react-router-dom";
-import {FiBarChart2, FiCheckSquare, FiFileText, FiKey, FiSearch} from "react-icons/fi";
+import {FiBarChart2, FiCheckSquare, FiFileText, FiKey, FiSearch, FiTerminal} from "react-icons/fi";
 
 
 export default function ToolsDashboard() {
@@ -37,6 +37,12 @@ export default function ToolsDashboard() {
             description: "Analyze RCA quality scores and incident documentation",
             path: "/rca-quality-dashboard",
             icon: <FiBarChart2/>
+        },
+        {
+            title: "Trino Connection",
+            description: "Run queries on catalogs and schemas via Trino",
+            path: "/trino-connection",
+            icon: <FiTerminal/>
         }
     ];
 

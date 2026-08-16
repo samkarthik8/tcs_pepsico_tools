@@ -10,6 +10,7 @@ import ExcelFolderSearch from "./components/ExcelFolderSearch.jsx";
 import VoucherDecryption from "./components/VoucherDecryption.jsx";
 import THReconciliation from "./components/THReconciliation.jsx";
 import RCAQualityDashboard from "./components/RCAQualityDashboard";
+import TrinoConnection from "./components/TrinoConnection.jsx";
 // Utilities
 import {processData} from "./utils.js";
 import "./index.css";
@@ -74,6 +75,12 @@ export default function App() {
                             onFileUpload={handleFileUpload}
                         />
                     }
+                />
+
+                {/* TRINO CONNECTION — ad-hoc SELECT queries via Trino */}
+                <Route
+                    path="/trino-connection"
+                    element={<TrinoConnection/>}
                 />
             </Routes>
         </HashRouter>

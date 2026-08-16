@@ -1,4 +1,4 @@
-﻿// THReconciliation.jsx
+// THReconciliation.jsx
 import React, {useMemo, useState} from "react";
 import Papa from "papaparse";
 import {Database, Download, Loader2} from "lucide-react";
@@ -8,7 +8,7 @@ import HomeButton from "./ui/HomeButton.jsx";
 const QUERY_STRING = `SELECT
     store_id AS "Store",
     total_points AS "Points Balance"
-FROM th_prod.reward_engine_user
+FROM loyalty_amesa.th_prod.reward_engine_user
 WHERE total_points > 0;`;
 
 const DISPLAY_ROW_LIMIT = 50;
