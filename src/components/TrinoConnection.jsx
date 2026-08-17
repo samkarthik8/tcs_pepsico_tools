@@ -70,13 +70,47 @@ export default function TrinoConnection() {
             fields: queryColumns,
             data: queryRows,
         });
-        const blob = new Blob(["\uFEFF", csv], {type: "text/csv;charset=utf-8;"});
+
+        const blob = new Blob(["\uFEFF", csv], {
+            type: "text/csv;charset=utf-8;",
+        });
+
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
-        const timestamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
-        link.download = `Trino_Query_${timestamp}.csv`;
+
+        // Extract first table name from FROM clause
+        const fromMatch = queryText.match(
+            /\bFROM\s+(?:(?:["'`]?[\w$-]+["'`]?)\.)*(["'`]?[\w$-]+["'`]?)\b/i
+        );
+
+        let tableName = fromMatch?.[1] || "Trino_Query";
+
+        // Remove SQL identifier quotes if present
+        tableName = tableName.replace(/["'`]/g, "");
+
+        const now = new Date();
+
+        const day = String(now.getDate()).padStart(2, "0");
+
+        const monthNames = [
+            "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+        ];
+
+        const month = monthNames[now.getMonth()];
+        const year = now.getFullYear();
+
+        const hours = String(now.getHours()).padStart(2, "0");
+        const minutes = String(now.getMinutes()).padStart(2, "0");
+        const seconds = String(now.getSeconds()).padStart(2, "0");
+
+        const filename =
+            `${tableName}_${day}-${month}-${year}_T${hours}-${minutes}-${seconds}.csv`;
+
+        link.download = filename;
         link.click();
+
         URL.revokeObjectURL(url);
     };
 
@@ -103,6 +137,12 @@ export default function TrinoConnection() {
                         placeholder={PLACEHOLDER_QUERY}
                         rows={10}
                         spellCheck={false}
+                        onKeyDown={(e) => {
+                            if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+                                e.preventDefault();
+                                runTrinoQuery();
+                            }
+                        }}
                         className="w-full px-5 py-4 rounded-xl bg-[#001f3f]/80 text-[#00AEEF] border-2 border-[#00AEEF]/30 outline-none font-mono text-sm resize-y focus:border-[#00AEEF]/70 transition placeholder:text-[#00AEEF]/30"
                     />
                 </div>
