@@ -5,16 +5,15 @@ import {Download, Loader2, Upload} from "lucide-react";
 import pepsicoLogo from "../assets/pepsico_logo.png";
 import {decryptVoucher} from "../services/DecryptService";
 import HomeButton from "./ui/HomeButton.jsx";
-
 // Extracted Query — Single Source of Truth
 const QUERY_STRING = "SELECT * FROM object_cep_digital_code;";
-
 export default function VoucherDecryptor() {
     const [rows, setRows] = useState([]);
     const [processing, setProcessing] = useState(false);
     const [parsedCount, setParsedCount] = useState(0);
     const [totalCount, setTotalCount] = useState(0);
-
+    const [encryptedVoucher, setEncryptedVoucher] = useState("");
+    const [decryptedVoucher, setDecryptedVoucher] = useState("");
     // Count rows first for progress estimation
     const countRows = (file) =>
         new Promise((resolve) => {
@@ -28,19 +27,14 @@ export default function VoucherDecryptor() {
                 complete: () => resolve(count),
             });
         });
-
     const handleUpload = async (ev) => {
         const file = ev.target.files?.[0];
         if (!file) return;
-
         setProcessing(true);
         setParsedCount(0);
-
         const rowEstimate = await countRows(file);
         setTotalCount(rowEstimate);
-
         const parsedRows = [];
-
         Papa.parse(file, {
             header: true,
             skipEmptyLines: true,
@@ -50,13 +44,11 @@ export default function VoucherDecryptor() {
                 const codeKey = Object.keys(r).find((k) => k.toLowerCase() === "code") || "Code";
                 const encrypted = r[codeKey] || "";
                 const decrypted = encrypted ? decryptVoucher(encrypted) : "[No Code]";
-
                 parsedRows.push({
                     Decrypted: decrypted,
                     Encrypted: encrypted,
                     ...r,
                 });
-
                 if (parsedRows.length % 100 === 0) {
                     setParsedCount(parsedRows.length);
                 }
@@ -75,26 +67,21 @@ export default function VoucherDecryptor() {
             },
         });
     };
-
     // Optimized CSV Export
     const exportCsvOptimized = () => {
         if (!rows.length) return alert("No data to export.");
-
         const headers = Object.keys(rows[0]);
         const total = rows.length;
         const filenameCsv = `Decrypted_Vouchers_${new Date().toISOString().slice(0, 10)}.csv`;
         let csvContent = "\uFEFF" + headers.join(",") + "\n"; // BOM for Excel
-
         const chunkSize = 15000;
         let processed = 0;
-
         const quoteIfNeeded = (val) => {
             if (val == null) return "";
             const str = String(val).replace(/\r?\n|\r/g, " ");
             if (/[,"\n]/.test(str)) return `"${str.replace(/"/g, '""')}"`;
             return str;
         };
-
         const processChunk = () => {
             const start = processed;
             const end = Math.min(start + chunkSize, total);
@@ -104,13 +91,11 @@ export default function VoucherDecryptor() {
             );
             csvContent += lines.join("\n") + "\n";
             processed = end;
-
             const percent = Math.round((processed / total) * 100);
             const progressEl = document.getElementById("csv-progress");
             if (progressEl) {
                 progressEl.textContent = `Exporting CSV… ${percent}%`;
             }
-
             if (processed < total) {
                 setTimeout(processChunk, 0);
             } else {
@@ -122,17 +107,14 @@ export default function VoucherDecryptor() {
                 a.click();
             }
         };
-
         processChunk();
     };
-
     const percentDone = totalCount > 0 ? Math.round((parsedCount / totalCount) * 100) : 0;
     const rowCount = rows.length;
-
     return (
         <div
             className="min-h-screen w-full bg-gradient-to-br from-[#001f3f] via-[#004B93] to-[#001f3f] text-white p-10 font-sans flex flex-col items-center">
-            <HomeButton />
+            <HomeButton/>
             {/* Header */}
             <div className="flex items-center justify-center gap-8 mb-14">
                 <img src={pepsicoLogo} alt="PepsiCo Logo" className="h-28 drop-shadow-2xl"/>
@@ -140,11 +122,75 @@ export default function VoucherDecryptor() {
                     Voucher Decryption Tool
                 </h1>
             </div>
-
             {/* Main Card */}
             <div
                 className="flex flex-col items-center gap-10 w-full max-w-5xl bg-white/10 backdrop-blur-2xl p-12 rounded-3xl shadow-2xl border border-white/20">
-
+                {/* Manual Voucher Decryption */}
+                <div className="w-full bg-black/30 p-8 rounded-2xl border border-white/10 shadow-2xl backdrop-blur">
+                    <div className="mb-4">
+                        <label className="text-gray-200 font-semibold text-lg">
+                            Encrypted Voucher Code
+                        </label>
+                        <p className="text-gray-400 text-sm mt-1">
+                            Paste an encrypted voucher code below to decrypt it.
+                        </p>
+                    </div>
+                    {/* Encrypted Voucher Text Area */}
+                    <textarea
+                        value={encryptedVoucher}
+                        onChange={(e) => {
+                            setEncryptedVoucher(e.target.value);
+                            setDecryptedVoucher("");
+                        }}
+                        placeholder="Enter encrypted voucher code..."
+                        rows={5}
+                        className="w-full bg-[#001f3f]/80 text-[#FFFFFF] px-6 py-4 rounded-xl
+                   text-sm font-mono border border-[#00AEEF]/30 shadow-inner
+                   focus:outline-none focus:ring-2 focus:ring-[#00AEEF]
+                   resize-none"
+                    />
+                    {/* Decrypt Button */}
+                    <div className="flex justify-center mt-6">
+                        <button
+                            onClick={() => {
+                                if (!encryptedVoucher.trim()) {
+                                    alert("Please enter an encrypted voucher code.");
+                                    return;
+                                }
+                                try {
+                                    const decrypted = decryptVoucher(encryptedVoucher.trim());
+                                    setDecryptedVoucher(decrypted);
+                                } catch (error) {
+                                    console.error("Voucher decryption failed:", error);
+                                    setDecryptedVoucher("Decryption failed.");
+                                }
+                            }}
+                            className="bg-[#E4002B] hover:bg-[#c70024] active:bg-[#a5001e]
+                       px-12 py-4 rounded-xl text-white font-bold text-lg
+                       shadow-2xl transition-all hover:scale-105 active:scale-98
+                       border-2 border-white/20"
+                        >
+                            Decrypt
+                        </button>
+                    </div>
+                    {/* Decrypted Voucher Text Area */}
+                    <div className="mt-6">
+                        <label className="text-gray-200 font-semibold text-lg">
+                            Decrypted Voucher Code
+                        </label>
+                        <textarea
+                            value={decryptedVoucher}
+                            readOnly
+                            placeholder="Decrypted voucher code will appear here..."
+                            rows={3}
+                            className="w-full mt-3 bg-black/40 text-green-300 px-6 py-4
+                       rounded-xl text-lg font-mono border border-green-400/30
+                       shadow-inner resize-none cursor-default
+                       focus:outline-none focus:ring-2 focus:ring-[#00AEEF]
+                       "
+                        />
+                    </div>
+                </div>
                 {/* Upload Button */}
                 <label
                     className="bg-[#004B93] hover:bg-[#003d7a] active:bg-[#002b5b] px-12 py-6 rounded-2xl cursor-pointer text-white font-bold text-xl shadow-2xl flex items-center gap-5 transition-all hover:scale-105 active:scale-98 border-2 border-[#00AEEF]/50">
@@ -152,7 +198,6 @@ export default function VoucherDecryptor() {
                     Upload CSV File
                     <input type="file" accept=".csv" onChange={handleUpload} className="hidden"/>
                 </label>
-
                 {/* Query Display Box — Now uses extracted constant */}
                 <div className="w-full bg-black/30 p-8 rounded-2xl border border-white/10 shadow-2xl backdrop-blur">
                     <div className="flex justify-between items-center mb-4">
@@ -174,7 +219,6 @@ export default function VoucherDecryptor() {
                         Decrypted values will be computed and included in the exported file.
                     </p>
                 </div>
-
                 {/* Processing State */}
                 {processing && (
                     <div className="flex flex-col items-center gap-6 w-full mt-6">
@@ -190,7 +234,6 @@ export default function VoucherDecryptor() {
                         <div className="text-[#00AEEF] font-bold text-lg">{percentDone}% Completed</div>
                     </div>
                 )}
-
                 {/* Success State */}
                 {rowCount > 0 && !processing && (
                     <div className="flex flex-col items-center gap-10 w-full">
@@ -201,9 +244,7 @@ export default function VoucherDecryptor() {
                             <Download size={40}/>
                             Export Decrypted CSV
                         </button>
-
                         <div id="csv-progress" className="text-[#00AEEF] text-lg font-medium"></div>
-
                         <div
                             className="bg-gradient-to-br from-[#004B93]/90 to-[#001f3f]/90 px-12 py-10 rounded-3xl border-2 border-[#00AEEF]/50 shadow-2xl text-center w-full">
                             <p className="text-4xl font-extrabold text-white drop-shadow-lg">
