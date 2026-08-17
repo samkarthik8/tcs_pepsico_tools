@@ -125,7 +125,7 @@ export default function VoucherDecryptor() {
             {/* Main Card */}
             <div
                 className="flex flex-col items-center gap-10 w-full max-w-5xl bg-white/10 backdrop-blur-2xl p-12 rounded-3xl shadow-2xl border border-white/20">
-                {/* Manual Voucher Decryption */}
+                {/* Manual Voucher Decryption - Single Voucher Code*/}
                 <div className="w-full bg-black/30 p-8 rounded-2xl border border-white/10 shadow-2xl backdrop-blur">
                     <div className="mb-4">
                         <label className="text-gray-200 font-semibold text-lg">
