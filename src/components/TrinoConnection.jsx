@@ -6,9 +6,9 @@ import pepsicoLogo from "../assets/pepsico_logo.png";
 import HomeButton from "./ui/HomeButton.jsx";
 
 const PLACEHOLDER_QUERY = `SELECT store_id AS "Store",
-       total_points AS "Points Balance"
+total_points AS "Points Balance"
 FROM loyalty_amesa.th_prod.reward_engine_user
-WHERE total_points > 0;`;
+WHERE total_points > 0`;
 
 const DISPLAY_ROW_LIMIT = 50;
 
@@ -45,7 +45,15 @@ export default function TrinoConnection() {
         setQueryColumns([]);
 
         try {
-            const result = await window.trinoConnection.runQuery(trinoPassword, queryText);
+            const cleanedQuery = queryText
+                .trim()
+                .replace(/;+\s*$/, "");
+
+            const result = await window.trinoConnection.runQuery(
+                trinoPassword,
+                cleanedQuery
+            );
+
             setQueryColumns(result.columns || []);
             setQueryRows(result.rows || []);
         } catch (error) {

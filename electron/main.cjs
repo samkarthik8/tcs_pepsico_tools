@@ -6,10 +6,11 @@ const TRINO = {
     port: 443,
     username: "pepconndb06",
 };
-const TH_RECONCILIATION_QUERY = `SELECT store_id     AS "Store",
-                                        total_points AS "Points Balance"
-                                 FROM loyalty_amesa.th_prod.reward_engine_user
-                                 WHERE total_points > 0`;
+
+const TH_RECONCILIATION_QUERY = `SELECT store_id AS "Store",
+total_points AS "Points Balance"
+FROM loyalty_amesa.th_prod.reward_engine_user
+WHERE total_points > 0`;
 
 function trinoRequest(pathname, body, password) {
     return new Promise((resolve, reject) => {
@@ -78,32 +79,77 @@ async function runThReconciliationQuery(password) {
 ipcMain.handle("th-reconciliation:run-query", (_event, password) => runThReconciliationQuery(password));
 
 async function runTrinoConnectionQuery(password, query) {
-    if (typeof password !== "string" || !password.trim()) throw new Error("Enter your Trino password.");
-    if (typeof query !== "string" || !query.trim()) throw new Error("Enter a query to run.");
-    // Allow only SELECT queries (after stripping comments and whitespace).
-    const stripped = query.replace(/--[^\n]*/g, "").replace(/\/\*[\s\S]*?\*\//g, "").trim();
-    if (!/^SELECT\b/i.test(stripped)) throw new Error("Only SELECT queries are permitted.");
+    if (typeof password !== "string" || !password.trim()) {
+        throw new Error("Enter your Trino password.");
+    }
 
-    let page = await trinoRequest("/v1/statement", query.trim(), password);
+    if (typeof query !== "string" || !query.trim()) {
+        throw new Error("Enter a query to run.");
+    }
+
+    // Remove SQL comments
+    const stripped = query
+        .replace(/--[^\n]*/g, "")
+        .replace(/\/\*[\s\S]*?\*\//g, "")
+        .trim();
+
+    // Remove trailing semicolon(s)
+    const cleanedQuery = stripped.replace(/;+\s*$/, "").trim();
+
+    // Allow only SELECT queries
+    if (!/^SELECT\b/i.test(cleanedQuery)) {
+        throw new Error("Only SELECT queries are permitted.");
+    }
+
+    // Prevent multiple SQL statements
+    if (cleanedQuery.includes(";")) {
+        throw new Error("Only one SELECT statement is permitted.");
+    }
+
+    console.log("Executing Trino query:");
+    console.log(cleanedQuery);
+
+    let page = await trinoRequest(
+        "/v1/statement",
+        cleanedQuery,
+        password
+    );
+
     const rows = [];
     let columns = page.columns || [];
+
     while (true) {
         if (page.error) {
-            throw new Error(page.error.message || "Trino could not run the query.");
+            throw new Error(
+                page.error.message || "Trino could not run the query."
+            );
         }
+
         if (page.columns?.length) {
             columns = page.columns;
         }
+
         if (page.data?.length) {
             rows.push(...page.data);
         }
+
         if (!page.nextUri) {
             break;
         }
+
         const nextUrl = new URL(page.nextUri);
-        page = await trinoRequest(`${nextUrl.pathname}${nextUrl.search}`, null, password);
+
+        page = await trinoRequest(
+            `${nextUrl.pathname}${nextUrl.search}`,
+            null,
+            password
+        );
     }
-    return {columns: columns.map(column => column.name), rows};
+
+    return {
+        columns: columns.map(column => column.name),
+        rows
+    };
 }
 
 ipcMain.handle("trino-connection:run-query", (_event, password, query) => runTrinoConnectionQuery(password, query));
