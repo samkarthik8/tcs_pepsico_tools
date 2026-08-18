@@ -6,6 +6,7 @@ import pepsicoLogo from "../assets/pepsico_logo.png";
 import {decryptVoucher} from "../services/DecryptService";
 import HomeButton from "./ui/HomeButton.jsx";
 // Extracted Query — Single Source of Truth
+// noinspection SqlNoDataSourceInspection
 const QUERY_STRING = "SELECT * FROM object_cep_digital_code;";
 export default function VoucherDecryptor() {
     const [rows, setRows] = useState([]);
@@ -135,7 +136,7 @@ export default function VoucherDecryptor() {
                             Paste an encrypted voucher code below to decrypt it.
                         </p>
                     </div>
-                    {/* Encrypted Voucher Text Area - Test*/}
+                    {/* Encrypted Voucher Text Area*/}
                     <textarea
                         value={encryptedVoucher}
                         onChange={(e) => {
