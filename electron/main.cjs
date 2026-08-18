@@ -8,10 +8,10 @@ const TRINO = {
 };
 const TRINO_PASSWORD = "yKiFN3Fh(oNo=bec";
 // noinspection SqlNoDataSourceInspection
-const TH_RECONCILIATION_QUERY = `SELECT store_id AS "Store",
-total_points AS "Points Balance"
-FROM loyalty_amesa.th_prod.reward_engine_user
-WHERE total_points > 0`;
+const TH_RECONCILIATION_QUERY = `SELECT store_id     AS "Store",
+                                        total_points AS "Points Balance"
+                                 FROM loyalty_amesa.th_prod.reward_engine_user
+                                 WHERE total_points > 0`;
 
 function trinoRequest(pathname, body, password) {
     return new Promise((resolve, reject) => {
@@ -51,33 +51,56 @@ function trinoRequest(pathname, body, password) {
     });
 }
 
-async function runThReconciliationQuery(password) {
-    if (typeof password !== "string" || !password.trim()) throw new Error("Enter your Trino password.");
-    let page = await trinoRequest("/v1/statement", TH_RECONCILIATION_QUERY, password);
+async function runThReconciliationQuery() {
+    let page = await trinoRequest(
+        "/v1/statement",
+        TH_RECONCILIATION_QUERY,
+        TRINO_PASSWORD
+    );
+
     const rows = [];
     let columns = page.columns || [];
+
     while (true) {
         if (page.error) {
-            throw new Error(page.error.message || "Trino could not run the query.");
+            throw new Error(
+                page.error.message ||
+                "Trino could not run the query."
+            );
         }
+
         if (page.columns?.length) {
             columns = page.columns;
         }
+
         if (page.data?.length) {
             rows.push(...page.data);
         }
+
         if (!page.nextUri) {
             break;
         }
+
         const nextUrl = new URL(page.nextUri);
-        page = await trinoRequest(`${nextUrl.pathname}${nextUrl.search}`, null, password);
+
+        page = await trinoRequest(
+            `${nextUrl.pathname}${nextUrl.search}`,
+            null,
+            TRINO_PASSWORD
+        );
     }
+
     return {
-        columns: columns.map(column => column.name), rows, truncated: false
+        columns: columns.map(column => column.name),
+        rows,
+        truncated: false
     };
 }
 
-ipcMain.handle("th-reconciliation:run-query", (_event, password) => runThReconciliationQuery(password));
+ipcMain.handle(
+    "th-reconciliation:run-query",
+    () => runThReconciliationQuery()
+);
 
 async function runTrinoConnectionQuery(query) {
     if (typeof query !== "string" || !query.trim()) {
@@ -157,6 +180,7 @@ ipcMain.handle(
     (_event, query) =>
         runTrinoConnectionQuery(query)
 );
+
 async function runCustomerRewardsHistoryQuery(catalog, schema, storeId, count) {
     if (!catalog || !schema) {
         throw new Error("Database mapping for this country is not yet configured.");
@@ -178,20 +202,19 @@ async function runCustomerRewardsHistoryQuery(catalog, schema, storeId, count) {
         throw new Error("Invalid record count.");
     }
 
-    const query = `SELECT
-                       al.store_id AS "Store",
-                       al.id AS "Event ID",
-                       al.name AS "Activity",
-                       al.activity_config_id AS "Activity ID",
-                       al.points_before AS "Points Before",
-                       al.points_awarded AS "Points Awarded",
-                       al.points_balance_after AS "Points After",
-                       CASE
-                           WHEN al.remarks IS NOT NULL THEN al.remarks
-                           WHEN al.message IS NOT NULL THEN ac.title
-                           ELSE ac.title
-                           END AS "Description",
-                       al.created_at AS "Creation Date"
+    const query = `SELECT al.store_id             AS "Store",
+                          al.id                   AS "Event ID",
+                          al.name                 AS "Activity",
+                          al.activity_config_id   AS "Activity ID",
+                          al.points_before        AS "Points Before",
+                          al.points_awarded       AS "Points Awarded",
+                          al.points_balance_after AS "Points After",
+                          CASE
+                              WHEN al.remarks IS NOT NULL THEN al.remarks
+                              WHEN al.message IS NOT NULL THEN ac.title
+                              ELSE ac.title
+                              END                 AS "Description",
+                          al.created_at           AS "Creation Date"
                    FROM ${catalog}.${schema}.activity_log al
                             LEFT JOIN ${catalog}.${schema}.activity_config ac
                                       ON ac.id = al.activity_config_id
