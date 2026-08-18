@@ -9,6 +9,12 @@ contextBridge.exposeInMainWorld("trinoConnection", {
 });
 
 contextBridge.exposeInMainWorld("customerRewardsHistory", {
-    fetchHistory: (password, catalog, schema, storeId, count) =>
-        ipcRenderer.invoke("customer-rewards:fetch-history", password, catalog, schema, storeId, count),
+    fetchHistory: (catalog, schema, storeId, count) =>
+        ipcRenderer.invoke(
+            "customer-rewards:fetch-history",
+            catalog,
+            schema,
+            storeId,
+            count
+        ),
 });

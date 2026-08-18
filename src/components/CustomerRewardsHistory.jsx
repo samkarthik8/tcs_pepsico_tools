@@ -8,7 +8,6 @@ import countryMappings from "../data/country-db-mappings.json";
 
 const PAGE_SIZE = 10;
 const RECORD_COUNT_OPTIONS = [10, 20, 50, 100, 200];
-const TRINO_PASSWORD = "yKiFN3Fh(oNo=bec";
 
 const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -96,7 +95,6 @@ export default function CustomerRewardsHistory() {
 
         try {
             const result = await window.customerRewardsHistory.fetchHistory(
-                TRINO_PASSWORD,
                 countryEntry.catalog,
                 countryEntry.schema,
                 storeId.trim(),
