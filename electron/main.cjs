@@ -79,11 +79,7 @@ async function runThReconciliationQuery(password) {
 
 ipcMain.handle("th-reconciliation:run-query", (_event, password) => runThReconciliationQuery(password));
 
-async function runTrinoConnectionQuery(password, query) {
-    if (typeof password !== "string" || !password.trim()) {
-        throw new Error("Enter your Trino password.");
-    }
-
+async function runTrinoConnectionQuery(query) {
     if (typeof query !== "string" || !query.trim()) {
         throw new Error("Enter a query to run.");
     }
@@ -95,7 +91,9 @@ async function runTrinoConnectionQuery(password, query) {
         .trim();
 
     // Remove trailing semicolon(s)
-    const cleanedQuery = stripped.replace(/;+\s*$/, "").trim();
+    const cleanedQuery = stripped
+        .replace(/;+\s*$/, "")
+        .trim();
 
     // Allow only SELECT queries
     if (!/^SELECT\b/i.test(cleanedQuery)) {
@@ -113,7 +111,7 @@ async function runTrinoConnectionQuery(password, query) {
     let page = await trinoRequest(
         "/v1/statement",
         cleanedQuery,
-        password
+        TRINO_PASSWORD
     );
 
     const rows = [];
@@ -122,7 +120,8 @@ async function runTrinoConnectionQuery(password, query) {
     while (true) {
         if (page.error) {
             throw new Error(
-                page.error.message || "Trino could not run the query."
+                page.error.message ||
+                "Trino could not run the query."
             );
         }
 
@@ -143,7 +142,7 @@ async function runTrinoConnectionQuery(password, query) {
         page = await trinoRequest(
             `${nextUrl.pathname}${nextUrl.search}`,
             null,
-            password
+            TRINO_PASSWORD
         );
     }
 
@@ -153,8 +152,11 @@ async function runTrinoConnectionQuery(password, query) {
     };
 }
 
-ipcMain.handle("trino-connection:run-query", (_event, password, query) => runTrinoConnectionQuery(password, query));
-
+ipcMain.handle(
+    "trino-connection:run-query",
+    (_event, query) =>
+        runTrinoConnectionQuery(query)
+);
 async function runCustomerRewardsHistoryQuery(catalog, schema, storeId, count) {
     if (!catalog || !schema) {
         throw new Error("Database mapping for this country is not yet configured.");

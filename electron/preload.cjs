@@ -5,7 +5,11 @@ contextBridge.exposeInMainWorld("thReconciliation", {
 });
 
 contextBridge.exposeInMainWorld("trinoConnection", {
-    runQuery: (password, query) => ipcRenderer.invoke("trino-connection:run-query", password, query),
+    runQuery: (query) =>
+        ipcRenderer.invoke(
+            "trino-connection:run-query",
+            query
+        ),
 });
 
 contextBridge.exposeInMainWorld("customerRewardsHistory", {
