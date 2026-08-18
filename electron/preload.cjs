@@ -7,3 +7,8 @@ contextBridge.exposeInMainWorld("thReconciliation", {
 contextBridge.exposeInMainWorld("trinoConnection", {
     runQuery: (password, query) => ipcRenderer.invoke("trino-connection:run-query", password, query),
 });
+
+contextBridge.exposeInMainWorld("customerRewardsHistory", {
+    fetchHistory: (password, catalog, schema, storeId, count) =>
+        ipcRenderer.invoke("customer-rewards:fetch-history", password, catalog, schema, storeId, count),
+});

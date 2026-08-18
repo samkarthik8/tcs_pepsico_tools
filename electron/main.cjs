@@ -7,6 +7,7 @@ const TRINO = {
     username: "pepconndb06",
 };
 
+// noinspection SqlNoDataSourceInspection
 const TH_RECONCILIATION_QUERY = `SELECT store_id AS "Store",
 total_points AS "Points Balance"
 FROM loyalty_amesa.th_prod.reward_engine_user
@@ -153,6 +154,55 @@ async function runTrinoConnectionQuery(password, query) {
 }
 
 ipcMain.handle("trino-connection:run-query", (_event, password, query) => runTrinoConnectionQuery(password, query));
+
+async function runCustomerRewardsHistoryQuery(password, catalog, schema, storeId, count) {
+    if (typeof password !== "string" || !password.trim()) throw new Error("Enter your Trino password.");
+    if (!catalog || !schema) throw new Error("Database mapping for this country is not yet configured.");
+    if (typeof storeId !== "string" || !storeId.trim()) throw new Error("Enter an ERP Customer (Store ID).");
+
+    const safeStoreId = storeId.trim().replace(/'/g, "''");
+    const safeCount = parseInt(count, 10);
+    if (isNaN(safeCount) || safeCount <= 0 || safeCount > 10000) throw new Error("Invalid record count.");
+
+    const query = `SELECT
+    al.store_id AS "Store",
+    al.id AS "Event ID",
+    al.name AS "Activity",
+    al.activity_config_id AS "Activity ID",
+    al.points_before AS "Points Before",
+    al.points_awarded AS "Points Awarded",
+    al.points_balance_after AS "Points After",
+    CASE
+        WHEN al.remarks IS NOT NULL THEN al.remarks
+        WHEN al.message IS NOT NULL THEN ac.title
+        ELSE ac.title
+    END AS "Description",
+    al.created_at AS "Creation Date"
+FROM ${catalog}.${schema}.activity_log al
+LEFT JOIN ${catalog}.${schema}.activity_config ac
+    ON ac.id = al.activity_config_id
+WHERE al.store_id = '${safeStoreId}'
+ORDER BY al.created_at DESC
+LIMIT ${safeCount}`;
+
+    let page = await trinoRequest("/v1/statement", query, password);
+    const rows = [];
+    let columns = page.columns || [];
+    while (true) {
+        if (page.error) throw new Error(page.error.message || "Trino could not run the query.");
+        if (page.columns?.length) columns = page.columns;
+        if (page.data?.length) rows.push(...page.data);
+        if (!page.nextUri) break;
+        const nextUrl = new URL(page.nextUri);
+        page = await trinoRequest(`${nextUrl.pathname}${nextUrl.search}`, null, password);
+    }
+    return {columns: columns.map((c) => c.name), rows};
+}
+
+ipcMain.handle("customer-rewards:fetch-history", (_event, password, catalog, schema, storeId, count) =>
+    runCustomerRewardsHistoryQuery(password, catalog, schema, storeId, count)
+);
+
 
 
 function createMainWindow() {

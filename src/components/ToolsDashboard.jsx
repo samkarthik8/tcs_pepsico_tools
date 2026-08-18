@@ -1,7 +1,7 @@
 import React from "react";
 import {Card} from "./ui/card";
 import {useNavigate} from "react-router-dom";
-import {FiBarChart2, FiCheckSquare, FiFileText, FiKey, FiSearch, FiDatabase} from "react-icons/fi";
+import {FiBarChart2, FiCheckSquare, FiChevronsUp, FiFileText, FiKey, FiSearch, FiDatabase} from "react-icons/fi";
 
 
 export default function ToolsDashboard() {
@@ -43,6 +43,12 @@ export default function ToolsDashboard() {
             description: "Run queries on catalogs and schemas via Trino",
             path: "/trino-connection",
             icon: <FiDatabase/>
+        },
+        {
+            title: "Customer Rewards History",
+            description: "Check Customer Rewards History for a customer in any market",
+            path: "/customer-rewards-history",
+            icon: <FiChevronsUp/>
         }
     ];
 

@@ -11,6 +11,7 @@ import VoucherDecryption from "./components/VoucherDecryption.jsx";
 import THReconciliation from "./components/THReconciliation.jsx";
 import RCAQualityDashboard from "./components/RCAQualityDashboard";
 import TrinoConnection from "./components/TrinoConnection.jsx";
+import CustomerRewardsHistory from "./components/CustomerRewardsHistory.jsx";
 // Utilities
 import {processData} from "./utils.js";
 import "./index.css";
@@ -81,6 +82,12 @@ export default function App() {
                 <Route
                     path="/trino-connection"
                     element={<TrinoConnection/>}
+                />
+
+                {/* CUSTOMER REWARDS HISTORY — per-customer activity log across markets */}
+                <Route
+                    path="/customer-rewards-history"
+                    element={<CustomerRewardsHistory/>}
                 />
             </Routes>
         </HashRouter>
