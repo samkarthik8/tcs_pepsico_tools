@@ -1,0 +1,110 @@
+﻿[
+  {
+    "name": "Argentina",
+    "iso": "AR",
+    "catalog": null,
+    "schema": null
+  },
+  {
+    "name": "Chile",
+    "iso": "CL",
+    "catalog": null,
+    "schema": null
+  },
+  {
+    "name": "China",
+    "iso": "CN",
+    "catalog": null,
+    "schema": null
+  },
+  {
+    "name": "Colombia",
+    "iso": "CO",
+    "catalog": null,
+    "schema": null
+  },
+  {
+    "name": "Dominican Republic",
+    "iso": "DO",
+    "catalog": null,
+    "schema": null
+  },
+  {
+    "name": "Ecuador",
+    "iso": "EC",
+    "catalog": null,
+    "schema": null
+  },
+  {
+    "name": "Egypt",
+    "iso": "EG",
+    "catalog": "loyalty_amesa",
+    "schema": "eg_prod"
+  },
+  {
+    "name": "Mexico",
+    "iso": "MX",
+    "catalog": null,
+    "schema": null
+  },
+  {
+    "name": "New Zealand",
+    "iso": "NZ",
+    "catalog": "loyalty_amesa",
+    "schema": "nz_prod"
+  },
+  {
+    "name": "Peru",
+    "iso": "PE",
+    "catalog": null,
+    "schema": null
+  },
+  {
+    "name": "Poland",
+    "iso": "PL",
+    "catalog": "loyalty_poland",
+    "schema": "pl_prod"
+  },
+  {
+    "name": "Portugal",
+    "iso": "PT",
+    "catalog": "loyalty_global",
+    "schema": "pt_prod"
+  },
+  {
+    "name": "Romania",
+    "iso": "RO",
+    "catalog": "loyalty_global",
+    "schema": "ro_prod"
+  },
+  {
+    "name": "Russia",
+    "iso": "RU",
+    "catalog": "loyalty_global",
+    "schema": "ru_prod"
+  },
+  {
+    "name": "Saudi Arabia",
+    "iso": "SA",
+    "catalog": "loyalty_amesa",
+    "schema": "sa_prod"
+  },
+  {
+    "name": "Spain",
+    "iso": "ES",
+    "catalog": "loyalty_global",
+    "schema": "es_prod"
+  },
+  {
+    "name": "Thailand",
+    "iso": "TH",
+    "catalog": "loyalty_amesa",
+    "schema": "th_prod"
+  },
+  {
+    "name": "Turkey",
+    "iso": "TR",
+    "catalog": null,
+    "schema": null
+  }
+]
