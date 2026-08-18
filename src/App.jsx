@@ -1,9 +1,7 @@
 import React, {useState} from "react";
 import {HashRouter, Route, Routes} from "react-router-dom";
-
 // Home Tools Dashboard
 import ToolsDashboard from "./components/ToolsDashboard.jsx";
-
 // Tool pages
 import IncidentReportDashboard from "./components/IncidentReportDashboard.jsx";
 import ExcelFolderSearch from "./components/ExcelFolderSearch.jsx";
@@ -15,22 +13,18 @@ import CustomerRewardsHistory from "./components/CustomerRewardsHistory.jsx";
 // Utilities
 import {processData} from "./utils.js";
 import "./index.css";
-
 export default function App() {
     const [data, setData] = useState([]);
-
     // Handles file upload for the tools that require it
     const handleFileUpload = (parsedData) => {
         const processed = processData(parsedData);
         setData(processed);
     };
-
     return (
         <HashRouter>
             <Routes>
                 {/* MAIN HOME DASHBOARD */}
                 <Route path="/" element={<ToolsDashboard/>}/>
-
                 {/* INCIDENT REPORT DASHBOARD */}
                 <Route
                     path="/incident-report"
@@ -42,7 +36,6 @@ export default function App() {
                         />
                     }
                 />
-
                 {/* EXCEL FOLDER SEARCH */}
                 <Route
                     path="/excel-folder-search"
@@ -54,7 +47,6 @@ export default function App() {
                         />
                     }
                 />
-
                 {/* VOUCHER DECRYPTION — usually does NOT need data props */}
                 <Route
                     path="/voucher-decryption"
@@ -65,8 +57,17 @@ export default function App() {
                     path="/th-reconciliation"
                     element={<THReconciliation/>}
                 />
+                {/* CUSTOMER REWARDS HISTORY — per-customer activity log across markets */}
+                <Route
+                    path="/customer-rewards-history"
+                    element={<CustomerRewardsHistory/>}
+                />
+                {/* TRINO CONNECTION — ad-hoc SELECT queries via Trino */}
+                <Route
+                    path="/trino-connection"
+                    element={<TrinoConnection/>}
+                />
                 {/* RCA Quality Dashboard — usually does NOT need data props */}
-
                 <Route
                     path="/rca-quality-dashboard"
                     element={
@@ -76,18 +77,6 @@ export default function App() {
                             onFileUpload={handleFileUpload}
                         />
                     }
-                />
-
-                {/* TRINO CONNECTION — ad-hoc SELECT queries via Trino */}
-                <Route
-                    path="/trino-connection"
-                    element={<TrinoConnection/>}
-                />
-
-                {/* CUSTOMER REWARDS HISTORY — per-customer activity log across markets */}
-                <Route
-                    path="/customer-rewards-history"
-                    element={<CustomerRewardsHistory/>}
                 />
             </Routes>
         </HashRouter>
