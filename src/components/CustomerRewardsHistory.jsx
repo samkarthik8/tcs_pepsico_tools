@@ -1,13 +1,14 @@
 ﻿// CustomerRewardsHistory.jsx
-import React, { useMemo, useState } from "react";
+import React, {useMemo, useState} from "react";
 import Papa from "papaparse";
-import { Download, Loader2, Search } from "lucide-react";
+import {Download, Loader2, Search} from "lucide-react";
 import pepsicoLogo from "../assets/pepsico_logo.png";
 import HomeButton from "./ui/HomeButton.jsx";
 import countryMappings from "../data/country-db-mappings.json";
 
 const PAGE_SIZE = 10;
 const RECORD_COUNT_OPTIONS = [10, 20, 50, 100, 200];
+const TRINO_PASSWORD = "yKiFN3Fh(oNo=bec";
 
 const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -26,7 +27,6 @@ export default function CustomerRewardsHistory() {
     const [selectedCountry, setSelectedCountry] = useState("");
     const [storeId, setStoreId] = useState("");
     const [recordCount, setRecordCount] = useState(10);
-    const [trinoPassword, setTrinoPassword] = useState("");
 
     const [queryRows, setQueryRows] = useState([]);
     const [queryColumns, setQueryColumns] = useState([]);
@@ -73,9 +73,14 @@ export default function CustomerRewardsHistory() {
             setQueryError("This feature is available only in the installed EXE.");
             return;
         }
-        if (!selectedCountry) { setQueryError("Please select a country."); return; }
-        if (!storeId.trim()) { setQueryError("Please enter an ERP Customer (Store ID)."); return; }
-        if (!trinoPassword) { setQueryError("Please enter your Trino password."); return; }
+        if (!selectedCountry) {
+            setQueryError("Please select a country.");
+            return;
+        }
+        if (!storeId.trim()) {
+            setQueryError("Please enter an ERP Customer (Store ID).");
+            return;
+        }
         if (!countryEntry?.catalog || !countryEntry?.schema) {
             setQueryError(`Database mapping for ${countryEntry?.name || selectedCountry} is not yet configured.`);
             return;
@@ -91,7 +96,7 @@ export default function CustomerRewardsHistory() {
 
         try {
             const result = await window.customerRewardsHistory.fetchHistory(
-                trinoPassword,
+                TRINO_PASSWORD,
                 countryEntry.catalog,
                 countryEntry.schema,
                 storeId.trim(),
@@ -111,8 +116,8 @@ export default function CustomerRewardsHistory() {
 
     const exportCsv = () => {
         if (!queryColumns.length) return;
-        const csv = Papa.unparse({ fields: queryColumns, data: filteredRows });
-        const blob = new Blob(["\uFEFF", csv], { type: "text/csv;charset=utf-8;" });
+        const csv = Papa.unparse({fields: queryColumns, data: filteredRows});
+        const blob = new Blob(["\uFEFF", csv], {type: "text/csv;charset=utf-8;"});
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
@@ -148,24 +153,32 @@ export default function CustomerRewardsHistory() {
     };
 
     return (
-        <div className="min-h-screen w-full bg-gradient-to-br from-[#001f3f] via-[#004B93] to-[#001f3f] text-white p-10 font-sans flex flex-col items-center">
-            <HomeButton />
+        <div
+            className="min-h-screen w-full bg-gradient-to-br from-[#001f3f] via-[#004B93] to-[#001f3f] text-white p-10 font-sans flex flex-col items-center">
+            <HomeButton/>
             <div className="flex items-center justify-center gap-8 mb-14">
-                <img src={pepsicoLogo} alt="PepsiCo Logo" className="h-28 drop-shadow-2xl" />
+                <img src={pepsicoLogo} alt="PepsiCo Logo" className="h-28 drop-shadow-2xl"/>
                 <h1 className="text-5xl font-extrabold text-white tracking-wider drop-shadow-2xl">
                     Customer Rewards History
                 </h1>
             </div>
 
-            <div className="flex flex-col items-center gap-8 w-full max-w-6xl bg-white/10 backdrop-blur-2xl p-12 rounded-3xl shadow-2xl border border-white/20">
+            <div
+                className="flex flex-col items-center gap-8 w-full max-w-6xl bg-white/10 backdrop-blur-2xl p-12 rounded-3xl shadow-2xl border border-white/20">
 
                 {/* Controls row */}
+                {/* Controls row */}
                 <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+
                     {/* Country */}
                     <div className="flex flex-col gap-2">
-                        <label className="text-gray-100 font-semibold text-sm" htmlFor="crh-country">
+                        <label
+                            className="text-gray-100 font-semibold text-sm"
+                            htmlFor="crh-country"
+                        >
                             Country
                         </label>
+
                         <select
                             id="crh-country"
                             value={selectedCountry}
@@ -173,6 +186,7 @@ export default function CustomerRewardsHistory() {
                             className="px-4 py-3 rounded-xl bg-white text-[#001f3f] border-2 border-[#00AEEF]/50 outline-none font-medium"
                         >
                             <option value="">— Select country —</option>
+
                             {countryMappings.map((c) => (
                                 <option key={c.iso} value={c.iso}>
                                     {c.name} ({c.iso})
@@ -181,11 +195,16 @@ export default function CustomerRewardsHistory() {
                         </select>
                     </div>
 
+
                     {/* ERP Customer / Store ID */}
                     <div className="flex flex-col gap-2">
-                        <label className="text-gray-100 font-semibold text-sm" htmlFor="crh-store">
+                        <label
+                            className="text-gray-100 font-semibold text-sm"
+                            htmlFor="crh-store"
+                        >
                             ERP Customer (Store ID)
                         </label>
+
                         <input
                             id="crh-store"
                             type="text"
@@ -197,11 +216,16 @@ export default function CustomerRewardsHistory() {
                         />
                     </div>
 
+
                     {/* Records Count */}
                     <div className="flex flex-col gap-2">
-                        <label className="text-gray-100 font-semibold text-sm" htmlFor="crh-count">
+                        <label
+                            className="text-gray-100 font-semibold text-sm"
+                            htmlFor="crh-count"
+                        >
                             Records Count
                         </label>
+
                         <select
                             id="crh-count"
                             value={recordCount}
@@ -209,48 +233,45 @@ export default function CustomerRewardsHistory() {
                             className="px-4 py-3 rounded-xl bg-white text-[#001f3f] border-2 border-[#00AEEF]/50 outline-none font-medium"
                         >
                             {RECORD_COUNT_OPTIONS.map((n) => (
-                                <option key={n} value={n}>{n}</option>
+                                <option key={n} value={n}>
+                                    {n}
+                                </option>
                             ))}
                         </select>
                     </div>
 
-                    {/* Trino Password */}
-                    <div className="flex flex-col gap-2">
-                        <label className="text-gray-100 font-semibold text-sm" htmlFor="crh-password">
-                            Trino Password
-                        </label>
-                        <input
-                            id="crh-password"
-                            type="password"
-                            value={trinoPassword}
-                            onChange={(e) => setTrinoPassword(e.target.value)}
-                            onKeyDown={(e) => e.key === "Enter" && fetchHistory()}
-                            placeholder="Enter password"
-                            className="px-4 py-3 rounded-xl bg-white text-[#001f3f] border-2 border-[#00AEEF]/50 outline-none"
-                            autoComplete="current-password"
-                        />
-                    </div>
-                </div>
 
-                {/* Fetch button */}
-                <div className="w-full flex flex-col gap-3">
-                    <button
-                        onClick={fetchHistory}
-                        disabled={queryLoading}
-                        className="self-start bg-[#E4002B] disabled:opacity-60 hover:bg-[#c70024] px-8 py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition"
-                    >
-                        {queryLoading ? <Loader2 className="animate-spin" /> : <Search />}
-                        {queryLoading ? "Fetching..." : "Fetch History"}
-                    </button>
-                    <p className="text-gray-300 text-sm">Your password is not saved by the app.</p>
-                    {queryError && (
-                        <p className="text-red-200 font-medium">{queryError}</p>
-                    )}
+                    {/* Fetch Button */}
+                    <div className="flex flex-col gap-2 justify-end">
+                        <button
+                            onClick={fetchHistory}
+                            disabled={queryLoading}
+                            className="w-full bg-[#E4002B] disabled:opacity-60 hover:bg-[#c70024] px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-3 transition"
+                        >
+                            {queryLoading ? (
+                                <Loader2 className="animate-spin"/>
+                            ) : (
+                                <Search/>
+                            )}
+
+                            {queryLoading ? "Fetching..." : "Fetch History"}
+                        </button>
+                    </div>
+
                 </div>
+                {/* Error message */}
+                {queryError && (
+                    <div className="w-full">
+                        <p className="text-red-200 font-medium">
+                            {queryError}
+                        </p>
+                    </div>
+                )}
 
                 {/* Not found message */}
                 {notFound && !queryLoading && (
-                    <div className="w-full bg-yellow-400/10 border border-yellow-400/40 rounded-2xl px-6 py-5 text-yellow-200">
+                    <div
+                        className="w-full bg-yellow-400/10 border border-yellow-400/40 rounded-2xl px-6 py-5 text-yellow-200">
                         <p className="font-semibold text-lg mb-1">No records found.</p>
                         <p className="text-sm">
                             No reward activity was found for this customer. Please double-check the selected{" "}
@@ -271,7 +292,10 @@ export default function CustomerRewardsHistory() {
                                 </label>
                                 <select
                                     value={activityFilter}
-                                    onChange={(e) => { setActivityFilter(e.target.value); setCurrentPage(1); }}
+                                    onChange={(e) => {
+                                        setActivityFilter(e.target.value);
+                                        setCurrentPage(1);
+                                    }}
                                     className="px-3 py-2 rounded-lg bg-white text-[#001f3f] border-2 border-[#00AEEF]/50 outline-none text-sm font-medium"
                                 >
                                     <option value="All">All</option>
@@ -284,7 +308,7 @@ export default function CustomerRewardsHistory() {
                                 onClick={exportCsv}
                                 className="bg-[#E4002B] hover:bg-[#c70024] px-4 py-2 rounded-lg font-bold flex items-center justify-center gap-2 transition text-sm"
                             >
-                                <Download size={16} /> Export to CSV
+                                <Download size={16}/> Export to CSV
                             </button>
                         </div>
 
@@ -298,30 +322,32 @@ export default function CustomerRewardsHistory() {
                             </div>
                             <table className="w-full text-left bg-white/10 text-sm">
                                 <thead className="bg-[#001f3f]/90 text-[#00AEEF]">
-                                    <tr>
-                                        {queryColumns.map((col) => (
-                                            <th key={col} className="px-4 py-3 whitespace-nowrap">{col}</th>
-                                        ))}
-                                    </tr>
+                                <tr>
+                                    {queryColumns.map((col) => (
+                                        <th key={col} className="px-4 py-3 whitespace-nowrap">{col}</th>
+                                    ))}
+                                </tr>
                                 </thead>
                                 <tbody>
-                                    {pagedRows.length === 0 ? (
-                                        <tr>
-                                            <td colSpan={queryColumns.length} className="px-4 py-6 text-center text-gray-300">
-                                                No records match the current filter.
-                                            </td>
+                                {pagedRows.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={queryColumns.length}
+                                            className="px-4 py-6 text-center text-gray-300">
+                                            No records match the current filter.
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    pagedRows.map((row, rowIdx) => (
+                                        <tr key={rowIdx}
+                                            className="border-t border-white/10 hover:bg-white/5 transition">
+                                            {queryColumns.map((_, colIdx) => (
+                                                <td key={colIdx} className="px-4 py-3 whitespace-nowrap">
+                                                    {row[colIdx] ?? ""}
+                                                </td>
+                                            ))}
                                         </tr>
-                                    ) : (
-                                        pagedRows.map((row, rowIdx) => (
-                                            <tr key={rowIdx} className="border-t border-white/10 hover:bg-white/5 transition">
-                                                {queryColumns.map((_, colIdx) => (
-                                                    <td key={colIdx} className="px-4 py-3 whitespace-nowrap">
-                                                        {row[colIdx] ?? ""}
-                                                    </td>
-                                                ))}
-                                            </tr>
-                                        ))
-                                    )}
+                                    ))
+                                )}
                                 </tbody>
                             </table>
                         </div>
@@ -345,7 +371,7 @@ export default function CustomerRewardsHistory() {
                                 </button>
 
                                 {/* Page number buttons */}
-                                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                                {Array.from({length: totalPages}, (_, i) => i + 1)
                                     .filter((p) => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 2)
                                     .reduce((acc, p, idx, arr) => {
                                         if (idx > 0 && p - arr[idx - 1] > 1) acc.push("...");
