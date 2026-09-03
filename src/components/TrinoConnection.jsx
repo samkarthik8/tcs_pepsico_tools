@@ -9,7 +9,8 @@ import HomeButton from "./ui/HomeButton.jsx";
 const PLACEHOLDER_QUERY = `SELECT store_id AS "Store",
 total_points AS "Points Balance"
 FROM loyalty_amesa.th_prod.reward_engine_user
-WHERE total_points > 0`;
+WHERE total_points > 0
+LIMIT 10;`
 
 const DISPLAY_ROW_LIMIT = 50;
 
@@ -120,10 +121,9 @@ export default function TrinoConnection() {
                 <img src={pepsicoLogo} alt="PepsiCo Logo" className="h-28 drop-shadow-2xl"/>
                 <h1 className="text-5xl font-extrabold text-white tracking-wider drop-shadow-2xl">Trino Connection</h1>
             </div>
-
             <div
-                className="flex flex-col items-center gap-8 w-full max-w-5xl bg-white/10 backdrop-blur-2xl p-12 rounded-3xl shadow-2xl border border-white/20">
-
+                className="flex flex-col items-center gap-8 w-full max-w-[95vw] bg-white/10 backdrop-blur-2xl p-12 rounded-3xl shadow-2xl border border-white/20"
+            >
                 {/* Query input */}
                 <div className="w-full flex flex-col gap-3">
                     <label
@@ -180,40 +180,67 @@ export default function TrinoConnection() {
                     )}
                 </div>
 
-
                 {/* Results table */}
                 {queryColumns.length > 0 && !queryLoading && (
-                    <div className="w-full overflow-x-auto rounded-2xl border border-white/20">
+                    <div className="w-full rounded-2xl border border-white/20 overflow-hidden">
+
                         <div
-                            className="px-5 py-4 bg-black/30 font-semibold flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
-                            <span>
-                                Showing {displayedRows.length.toLocaleString()} of {queryRows.length.toLocaleString()} retrieved rows
-                            </span>
+                            className="px-4 py-2 bg-black/30 font-semibold text-xs flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
+            <span>
+                Showing {displayedRows.length.toLocaleString()} of{" "}
+                {queryRows.length.toLocaleString()} retrieved rows
+            </span>
+
                             <button
                                 onClick={exportQueryCsv}
                                 className="bg-[#E4002B] hover:bg-[#c70024] px-4 py-2 rounded-lg font-bold flex items-center justify-center gap-2 transition"
                             >
-                                <Download size={18}/> Export to CSV
+                                <Download size={18}/>
+                                Export to CSV
                             </button>
                         </div>
-                        <table className="w-full text-left bg-white/10">
+
+                        <table className="w-full table-fixed text-left bg-white/10 text-[11px]">
                             <thead className="bg-[#001f3f]/90 text-[#00AEEF]">
                             <tr>
                                 {queryColumns.map((col) => (
-                                    <th key={col} className="px-5 py-3">{col}</th>
+                                    <th
+                                        key={col}
+                                        className="px-2 py-2 text-[11px] font-semibold whitespace-normal"
+                                        style={{
+                                            wordBreak: "break-word",
+                                            overflowWrap: "anywhere",
+                                        }}
+                                    >
+                                        {col}
+                                    </th>
                                 ))}
                             </tr>
                             </thead>
+
                             <tbody>
                             {displayedRows.map((row, rowIndex) => (
-                                <tr key={rowIndex} className="border-t border-white/10">
+                                <tr
+                                    key={rowIndex}
+                                    className="border-t border-white/10"
+                                >
                                     {queryColumns.map((_, colIndex) => (
-                                        <td key={colIndex} className="px-5 py-3">{row[colIndex] ?? ""}</td>
+                                        <td
+                                            key={colIndex}
+                                            className="px-2 py-2 text-[10px] whitespace-normal align-top"
+                                            style={{
+                                                wordBreak: "break-word",
+                                                overflowWrap: "anywhere",
+                                            }}
+                                        >
+                                            {row[colIndex] ?? ""}
+                                        </td>
                                     ))}
                                 </tr>
                             ))}
                             </tbody>
                         </table>
+
                     </div>
                 )}
             </div>
