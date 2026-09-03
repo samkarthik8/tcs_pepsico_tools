@@ -8,7 +8,6 @@ import countryMappings from "../data/country-db-mappings.json";
 
 const PAGE_SIZE = 10;
 const RECORD_COUNT_OPTIONS = [10, 20, 50, 100, 200];
-
 const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -26,24 +25,19 @@ export default function CustomerRewardsHistory() {
     const [selectedCountry, setSelectedCountry] = useState("");
     const [storeId, setStoreId] = useState("");
     const [recordCount, setRecordCount] = useState(10);
-
     const [queryRows, setQueryRows] = useState([]);
     const [queryColumns, setQueryColumns] = useState([]);
     const [queryLoading, setQueryLoading] = useState(false);
     const [queryError, setQueryError] = useState("");
     const [notFound, setNotFound] = useState(false);
-
     // Activity filter
     const [activityFilter, setActivityFilter] = useState("All");
-
     // Pagination
     const [currentPage, setCurrentPage] = useState(1);
-
     const countryEntry = useMemo(
         () => countryMappings.find((c) => c.iso === selectedCountry) || null,
         [selectedCountry]
     );
-
     // Unique activity values from results
     const activityOptions = useMemo(() => {
         const activityColIdx = queryColumns.indexOf("Activity");
@@ -51,7 +45,6 @@ export default function CustomerRewardsHistory() {
         const unique = [...new Set(queryRows.map((r) => r[activityColIdx]).filter(Boolean))];
         return unique.sort();
     }, [queryRows, queryColumns]);
-
     // Filtered rows
     const filteredRows = useMemo(() => {
         if (activityFilter === "All") return queryRows;
@@ -59,14 +52,12 @@ export default function CustomerRewardsHistory() {
         if (activityColIdx === -1) return queryRows;
         return queryRows.filter((r) => r[activityColIdx] === activityFilter);
     }, [queryRows, queryColumns, activityFilter]);
-
     // Paginated rows
     const totalPages = Math.max(1, Math.ceil(filteredRows.length / PAGE_SIZE));
     const pagedRows = useMemo(
         () => filteredRows.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE),
         [filteredRows, currentPage]
     );
-
     const fetchHistory = async () => {
         if (!window.customerRewardsHistory?.fetchHistory) {
             setQueryError("This feature is available only in the installed EXE.");
@@ -84,7 +75,6 @@ export default function CustomerRewardsHistory() {
             setQueryError(`Database mapping for ${countryEntry?.name || selectedCountry} is not yet configured.`);
             return;
         }
-
         setQueryLoading(true);
         setQueryError("");
         setQueryRows([]);
@@ -92,7 +82,6 @@ export default function CustomerRewardsHistory() {
         setNotFound(false);
         setActivityFilter("All");
         setCurrentPage(1);
-
         try {
             const result = await window.customerRewardsHistory.fetchHistory(
                 countryEntry.catalog,
@@ -111,7 +100,6 @@ export default function CustomerRewardsHistory() {
             setQueryLoading(false);
         }
     };
-
     const exportCsv = () => {
         if (!queryColumns.length) return;
         const csv = Papa.unparse({fields: queryColumns, data: filteredRows});
@@ -124,11 +112,9 @@ export default function CustomerRewardsHistory() {
         link.click();
         URL.revokeObjectURL(url);
     };
-
     const handlePageChange = (newPage) => {
         setCurrentPage(Math.max(1, Math.min(newPage, totalPages)));
     };
-
     // Reset activity filter & page when country/store changes
     const handleCountryChange = (e) => {
         setSelectedCountry(e.target.value);
@@ -139,7 +125,6 @@ export default function CustomerRewardsHistory() {
         setActivityFilter("All");
         setCurrentPage(1);
     };
-
     const handleStoreIdChange = (e) => {
         setStoreId(e.target.value);
         setQueryRows([]);
@@ -149,7 +134,6 @@ export default function CustomerRewardsHistory() {
         setActivityFilter("All");
         setCurrentPage(1);
     };
-
     return (
         <div
             className="min-h-screen w-full bg-gradient-to-br from-[#001f3f] via-[#004B93] to-[#001f3f] text-white p-10 font-sans flex flex-col items-center">
@@ -160,14 +144,11 @@ export default function CustomerRewardsHistory() {
                     Customer Rewards History
                 </h1>
             </div>
-
             <div
                 className="flex flex-col items-center gap-8 w-full max-w-6xl bg-white/10 backdrop-blur-2xl p-12 rounded-3xl shadow-2xl border border-white/20">
-
                 {/* Controls row */}
                 {/* Controls row */}
                 <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-
                     {/* Country */}
                     <div className="flex flex-col gap-2">
                         <label
@@ -176,7 +157,6 @@ export default function CustomerRewardsHistory() {
                         >
                             Country
                         </label>
-
                         <select
                             id="crh-country"
                             value={selectedCountry}
@@ -184,7 +164,6 @@ export default function CustomerRewardsHistory() {
                             className="px-4 py-3 rounded-xl bg-white text-[#001f3f] border-2 border-[#00AEEF]/50 outline-none font-medium"
                         >
                             <option value="">— Select country —</option>
-
                             {countryMappings.map((c) => (
                                 <option key={c.iso} value={c.iso}>
                                     {c.name} ({c.iso})
@@ -192,8 +171,6 @@ export default function CustomerRewardsHistory() {
                             ))}
                         </select>
                     </div>
-
-
                     {/* ERP Customer / Store ID */}
                     <div className="flex flex-col gap-2">
                         <label
@@ -202,7 +179,6 @@ export default function CustomerRewardsHistory() {
                         >
                             ERP Customer (Store ID)
                         </label>
-
                         <input
                             id="crh-store"
                             type="text"
@@ -213,8 +189,6 @@ export default function CustomerRewardsHistory() {
                             className="px-4 py-3 rounded-xl bg-white text-[#001f3f] border-2 border-[#00AEEF]/50 outline-none"
                         />
                     </div>
-
-
                     {/* Records Count */}
                     <div className="flex flex-col gap-2">
                         <label
@@ -223,7 +197,6 @@ export default function CustomerRewardsHistory() {
                         >
                             Records Count
                         </label>
-
                         <select
                             id="crh-count"
                             value={recordCount}
@@ -237,8 +210,6 @@ export default function CustomerRewardsHistory() {
                             ))}
                         </select>
                     </div>
-
-
                     {/* Fetch Button */}
                     <div className="flex flex-col gap-2 justify-end">
                         <button
@@ -251,11 +222,9 @@ export default function CustomerRewardsHistory() {
                             ) : (
                                 <Search/>
                             )}
-
                             {queryLoading ? "Fetching..." : "Fetch History"}
                         </button>
                     </div>
-
                 </div>
                 {/* Error message */}
                 {queryError && (
@@ -265,7 +234,6 @@ export default function CustomerRewardsHistory() {
                         </p>
                     </div>
                 )}
-
                 {/* Not found message */}
                 {notFound && !queryLoading && (
                     <div
@@ -278,7 +246,6 @@ export default function CustomerRewardsHistory() {
                         </p>
                     </div>
                 )}
-
                 {/* Results */}
                 {queryColumns.length > 0 && !queryLoading && (
                     <div className="w-full flex flex-col gap-4">
@@ -309,37 +276,61 @@ export default function CustomerRewardsHistory() {
                                 <Download size={16}/> Export to CSV
                             </button>
                         </div>
-
                         {/* Table */}
-                        <div className="w-full overflow-x-auto rounded-2xl border border-white/20">
-                            <div className="px-5 py-3 bg-black/30 font-semibold text-sm text-gray-200">
-                                Showing {pagedRows.length === 0 ? 0 : ((currentPage - 1) * PAGE_SIZE + 1)}–{Math.min(currentPage * PAGE_SIZE, filteredRows.length)} of {filteredRows.length.toLocaleString()} record{filteredRows.length !== 1 ? "s" : ""}
+                        <div className="w-full rounded-2xl border border-white/20 overflow-hidden">
+                            <div className="bg-black/30 px-4 py-2 font-semibold text-xs text-gray-200">
+                                Showing {pagedRows.length === 0 ? 0 : ((currentPage - 1) * PAGE_SIZE + 1)}
+                                –{Math.min(currentPage * PAGE_SIZE, filteredRows.length)} of{" "}
+                                {filteredRows.length.toLocaleString()} record
+                                {filteredRows.length !== 1 ? "s" : ""}
                                 {activityFilter !== "All" && (
-                                    <span className="ml-2 text-[#00AEEF]">(filtered by "{activityFilter}")</span>
+                                    <span className="ml-2 text-[#00AEEF]">
+                (filtered by "{activityFilter}")
+            </span>
                                 )}
                             </div>
-                            <table className="w-full text-left bg-white/10 text-sm">
+                            <table className="w-full table-fixed text-left bg-white/10 text-xs">
                                 <thead className="bg-[#001f3f]/90 text-[#00AEEF]">
                                 <tr>
                                     {queryColumns.map((col) => (
-                                        <th key={col} className="px-4 py-3 whitespace-nowrap">{col}</th>
+                                        <th
+                                            key={col}
+                                            className="px-2 py-2 text-[11px] font-semibold whitespace-normal break-words"
+                                            style={{
+                                                wordBreak: "break-word",
+                                                overflowWrap: "anywhere",
+                                            }}
+                                        >
+                                            {col}
+                                        </th>
                                     ))}
                                 </tr>
                                 </thead>
                                 <tbody>
                                 {pagedRows.length === 0 ? (
                                     <tr>
-                                        <td colSpan={queryColumns.length}
-                                            className="px-4 py-6 text-center text-gray-300">
+                                        <td
+                                            colSpan={queryColumns.length}
+                                            className="px-4 py-6 text-center text-gray-300 text-[11px]"
+                                        >
                                             No records match the current filter.
                                         </td>
                                     </tr>
                                 ) : (
                                     pagedRows.map((row, rowIdx) => (
-                                        <tr key={rowIdx}
-                                            className="border-t border-white/10 hover:bg-white/5 transition">
+                                        <tr
+                                            key={rowIdx}
+                                            className="border-t border-white/10 hover:bg-white/5 transition"
+                                        >
                                             {queryColumns.map((_, colIdx) => (
-                                                <td key={colIdx} className="px-4 py-3 whitespace-nowrap">
+                                                <td
+                                                    key={colIdx}
+                                                    className="px-2 py-2 text-[11px] whitespace-normal align-top"
+                                                    style={{
+                                                        wordBreak: "break-word",
+                                                        overflowWrap: "anywhere",
+                                                    }}
+                                                >
                                                     {row[colIdx] ?? ""}
                                                 </td>
                                             ))}
@@ -349,7 +340,6 @@ export default function CustomerRewardsHistory() {
                                 </tbody>
                             </table>
                         </div>
-
                         {/* Pagination */}
                         {totalPages > 1 && (
                             <div className="flex items-center justify-center gap-2 pt-2">
@@ -367,7 +357,6 @@ export default function CustomerRewardsHistory() {
                                 >
                                     ‹
                                 </button>
-
                                 {/* Page number buttons */}
                                 {Array.from({length: totalPages}, (_, i) => i + 1)
                                     .filter((p) => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 2)
@@ -393,7 +382,6 @@ export default function CustomerRewardsHistory() {
                                             </button>
                                         )
                                     )}
-
                                 <button
                                     onClick={() => handlePageChange(currentPage + 1)}
                                     disabled={currentPage === totalPages}
