@@ -202,19 +202,19 @@ async function runCustomerRewardsHistoryQuery(catalog, schema, storeId, count) {
         throw new Error("Invalid record count.");
     }
 
-    const query = `SELECT al.store_id             AS "Store",
-                          al.id                   AS "Event ID",
-                          al.name                 AS "Activity",
-                          al.activity_config_id   AS "Activity ID",
-                          al.points_before        AS "Points Before",
-                          al.points_awarded       AS "Points Awarded",
-                          al.points_balance_after AS "Points After",
+    const query = `SELECT al.store_id              AS "Store",
+                          al.id                    AS "Event ID",
+                          al.name                  AS "Activity",
+                          al.activity_config_id    AS "Activity ID",
+                          al.points_balance_before AS "Points Before",
+                          al.points_awarded        AS "Points Awarded",
+                          al.points_balance_after  AS "Points After",
                           CASE
                               WHEN al.remarks IS NOT NULL THEN al.remarks
                               WHEN al.message IS NOT NULL THEN ac.title
                               ELSE ac.title
-                              END                 AS "Description",
-                          al.created_at           AS "Creation Date"
+                              END                  AS "Description",
+                          al.created_at            AS "Creation Date"
                    FROM ${catalog}.${schema}.activity_log al
                             LEFT JOIN ${catalog}.${schema}.activity_config ac
                                       ON ac.id = al.activity_config_id
