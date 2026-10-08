@@ -25,3 +25,12 @@ contextBridge.exposeInMainWorld("customerRewardsHistory", {
             count
         ),
 });
+
+contextBridge.exposeInMainWorld("pointsBalance", {
+    fetchBalance: (catalog, schema) =>
+        ipcRenderer.invoke(
+            "points-balance:fetch-balance",
+            catalog,
+            schema
+        ),
+});

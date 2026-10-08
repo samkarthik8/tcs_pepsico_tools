@@ -277,6 +277,65 @@ ipcMain.handle(
         )
 );
 
+async function runPointsBalanceQuery(catalog, schema) {
+    if (!catalog || !schema) {
+        throw new Error("Database mapping for this country is not yet configured.");
+    }
+
+    const query = `SELECT
+        store_id AS "Store",
+        total_points AS "Points Balance"
+    FROM ${catalog}.${schema}.reward_engine_user`;
+
+    let page = await trinoRequest(
+        "/v1/statement",
+        query,
+        TRINO_PASSWORD
+    );
+
+    const rows = [];
+    let columns = page.columns || [];
+
+    while (true) {
+        if (page.error) {
+            throw new Error(
+                page.error.message ||
+                "Trino could not run the query."
+            );
+        }
+
+        if (page.columns?.length) {
+            columns = page.columns;
+        }
+
+        if (page.data?.length) {
+            rows.push(...page.data);
+        }
+
+        if (!page.nextUri) {
+            break;
+        }
+
+        const nextUrl = new URL(page.nextUri);
+
+        page = await trinoRequest(
+            `${nextUrl.pathname}${nextUrl.search}`,
+            null,
+            TRINO_PASSWORD
+        );
+    }
+
+    return {
+        columns: columns.map((c) => c.name),
+        rows
+    };
+}
+
+ipcMain.handle(
+    "points-balance:fetch-balance",
+    (_event, catalog, schema) =>
+        runPointsBalanceQuery(catalog, schema)
+);
 
 function createMainWindow() {
     const win = new BrowserWindow({
