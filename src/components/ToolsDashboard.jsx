@@ -1,7 +1,16 @@
 import React from "react";
 import {Card} from "./ui/card";
 import {useNavigate} from "react-router-dom";
-import {FiActivity, FiBarChart2, FiCheckSquare, FiChevronsUp, FiDatabase, FiFileText, FiKey, FiSearch} from "react-icons/fi";
+import {
+    FiActivity,
+    FiBarChart2,
+    FiCheckSquare,
+    FiChevronsUp,
+    FiDatabase,
+    FiFileText,
+    FiKey,
+    FiSearch
+} from "react-icons/fi";
 
 
 export default function ToolsDashboard() {
@@ -12,56 +21,66 @@ export default function ToolsDashboard() {
             title: "Incident Report Dashboard",
             description: "Open and view incident reports",
             path: "/incident-report",
-            icon: <FiFileText/>
+            icon: <FiFileText/>,
+            hidden: false
         },
         {
             title: "Excel Folder Search",
             description: "Search and process Excel files",
             path: "/excel-folder-search",
-            icon: <FiSearch/>
+            icon: <FiSearch/>,
+            hidden: false
         },
         {
             title: "Voucher Decryption",
             description: "Decrypt and analyze voucher codes",
             path: "/voucher-decryption",
-            icon: <FiKey/>
+            icon: <FiKey/>,
+            hidden: false
         },
         {
             title: "TH Reconciliation",
             description: "Process and reconcile TH transaction records",
             path: "/th-reconciliation",
-            icon: <FiCheckSquare/>
+            icon: <FiCheckSquare/>,
+            hidden: false
         },
         {
             title: "Customer Rewards History",
             description: "Check Customer Rewards History for a customer in any market",
             path: "/customer-rewards-history",
-            icon: <FiChevronsUp/>
+            icon: <FiChevronsUp/>,
+            hidden: false
         },
         {
             title: "Points Balance",
             description: "Export full points balance for a market as CSV",
             path: "/points-balance",
-            icon: <FiActivity/>
+            icon: <FiActivity/>,
+            hidden: false
         },
         {
             title: "Trino Connection",
             description: "Run queries on catalogs and schemas via Trino",
             path: "/trino-connection",
-            icon: <FiDatabase/>
+            icon: <FiDatabase/>,
+            hidden: false
         },
         {
             title: "RCA Quality Dashboard",
             description: "Analyze RCA quality scores and incident documentation",
             path: "/rca-quality-dashboard",
-            icon: <FiBarChart2/>
+            icon: <FiBarChart2/>,
+            hidden: false
         },
     ];
+
+    const visibleTools = tools.filter(tool => !tool.hidden);
 
     return (
         <div
             className="min-h-screen w-full bg-gradient-to-b from-blue-900 via-blue-950 to-blue-900 text-gray-100 p-10 flex flex-col items-center font-sans">
-            <h1 className="text-4xl font-extrabold text-white mb-10">
+            <h1 className="text-4xl font-extrabold text-white mb-6">
                 TCS PepsiCo Tools
             </h1>
             <div className="fixed bottom-3 right-4 text-xs text-gray-400">
@@ -69,7 +88,7 @@ export default function ToolsDashboard() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-6xl">
-                {tools.map((tool, index) => (
+                {visibleTools.map((tool, index) => (
                     <Card
                         key={index}
                         icon={tool.icon}
