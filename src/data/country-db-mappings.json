@@ -2,38 +2,38 @@
   {
     "name": "Argentina",
     "iso": "AR",
-    "catalog": null,
-    "schema": null
+    "catalog": "loyalty_latam",
+    "schema": "ar_prod"
   },
   {
     "name": "Chile",
     "iso": "CL",
-    "catalog": null,
-    "schema": null
+    "catalog": "loyalty_latam",
+    "schema": "cl_prod"
   },
   {
     "name": "China",
     "iso": "CN",
-    "catalog": null,
-    "schema": null
+    "catalog": "loyalty_amesa",
+    "schema": "cn_prod"
   },
   {
     "name": "Colombia",
     "iso": "CO",
-    "catalog": null,
-    "schema": null
+    "catalog": "loyalty_latam",
+    "schema": "co_prod"
   },
   {
     "name": "Dominican Republic",
     "iso": "DO",
-    "catalog": null,
-    "schema": null
+    "catalog": "loyalty_latam",
+    "schema": "do_prod"
   },
   {
     "name": "Ecuador",
     "iso": "EC",
-    "catalog": null,
-    "schema": null
+    "catalog": "loyalty_latam",
+    "schema": "ec_prod"
   },
   {
     "name": "Egypt",
@@ -44,8 +44,8 @@
   {
     "name": "Mexico",
     "iso": "MX",
-    "catalog": null,
-    "schema": null
+    "catalog": "loyalty_latam",
+    "schema": "mx_prod"
   },
   {
     "name": "New Zealand",
@@ -56,8 +56,8 @@
   {
     "name": "Peru",
     "iso": "PE",
-    "catalog": null,
-    "schema": null
+    "catalog": "loyalty_latam",
+    "schema": "pe_prod"
   },
   {
     "name": "Poland",
@@ -104,7 +104,7 @@
   {
     "name": "Turkey",
     "iso": "TR",
-    "catalog": null,
-    "schema": null
+    "catalog": "loyalty_global",
+    "schema": "tr_prod"
   }
 ]
