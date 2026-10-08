@@ -10,6 +10,7 @@ import THReconciliation from "./components/THReconciliation.jsx";
 import RCAQualityDashboard from "./components/RCAQualityDashboard";
 import TrinoConnection from "./components/TrinoConnection.jsx";
 import CustomerRewardsHistory from "./components/CustomerRewardsHistory.jsx";
+import PointsBalance from "./components/PointsBalance.jsx";
 // Utilities
 import {processData} from "./utils.js";
 import "./index.css";
@@ -61,6 +62,11 @@ export default function App() {
                 <Route
                     path="/customer-rewards-history"
                     element={<CustomerRewardsHistory/>}
+                />
+                {/* POINTS BALANCE — export full points balance for a market */}
+                <Route
+                    path="/points-balance"
+                    element={<PointsBalance/>}
                 />
                 {/* TRINO CONNECTION — ad-hoc SELECT queries via Trino */}
                 <Route
